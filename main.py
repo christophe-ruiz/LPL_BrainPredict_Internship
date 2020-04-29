@@ -4,6 +4,6 @@ import sys
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication([])
     main = App()
     sys.exit(app.exec_())
