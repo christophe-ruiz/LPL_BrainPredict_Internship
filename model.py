@@ -6,7 +6,7 @@ from visbrain.objects import BrainObj, SceneObj
 
 
 class Modelling:
-    def __init__(self, data=Data()):
+    def __init__(self, data=None):
         # if not isinstance(data, Data):
         #     raise Exception()
         print('Fetching modelling data...')

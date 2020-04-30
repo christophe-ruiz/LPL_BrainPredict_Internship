@@ -8,7 +8,7 @@ from celluloid import Camera
 
 
 class Graph:
-    def __init__(self, data=Data()):
+    def __init__(self, data=None):
         print('Creating figure...')
         fig = plt.figure(figsize=(32, 18))
 

@@ -5,8 +5,8 @@ class Data:
     def __init__(self, predictions=None, areas=None, left=None, right=None):
         self.predictions = Tools.read_csv(predictions)
         self.areas = Tools.read_csv(areas)
-        self.left = Tools.read_csv(left)
-        self.right = Tools.read_csv(right)
+        self.left = left
+        self.right = right
 
     """
         GETTERS

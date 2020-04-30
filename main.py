@@ -1,5 +1,5 @@
 from app import App
-from PySide2.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication
 import sys
 
 
