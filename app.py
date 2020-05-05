@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QVBoxLayout, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QStatusBar
 from PyQt5.QtCore import Qt
 
 from data import Data
@@ -26,6 +26,8 @@ class App(QMainWindow):
         self.__run()
 
     def __set_infos(self):
+        self.statusBar = QStatusBar()
+        self.setStatusBar(self.statusBar)
         self.verbose('Setting initial position and size.')
         self.setGeometry(300, 300, 500, 250)
         self.verbose('Setting window title.')
@@ -79,11 +81,13 @@ class App(QMainWindow):
 
     def __toggle_action(self, which):
         self.action[which] = not self.action[which]
-        self.verbose(which, 'is now', self.action[which])
+        if self.action[which]:
+            self.verbose('Predictions will be computed as a', which)
+        else:
+            self.verbose('Predictions will not be computed as a', which)
     
     def verbose(self, *args):
-        # TODO: écrire le texte dans une barre de statut
-        self.text = ' '.join(map(str, args))
+        self.statusBar.showMessage(' '.join(map(str, args)), 5000)
         print(*args)
 
     def __run(self):

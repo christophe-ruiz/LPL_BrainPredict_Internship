@@ -14,8 +14,6 @@ class Graph:
         app.verbose('Retrieving data to plot')
         self.predictions = data.get_predictions()
         self.areas = data.get_areas()
-        print('Dans init:')
-        print(self.areas)
 
         self.cam = Camera(fig)
         app.verbose('Camera initialized.')
@@ -36,8 +34,6 @@ class Graph:
         for which in self.predictions.columns[1:]:
             # Tableau d'entiers issus de 3 chaînes de caractères auxquelles on a enlevé les caratères de ponctuation
             # Ces chaînes de caractères sont extraites du fichier brain_areas.tsv par délimitation du caractère : ','
-            print('dans animate:')
-            print(self.areas["Color"])
             colors = [int(str.strip(c, string.punctuation)) for c in str.split(self.areas["Color"][i])[:3]]
             # Les couleurs en hexadécimal : les caractères retournés par hex() sauf les deux premiers
             # formattés sur deux chifres.
