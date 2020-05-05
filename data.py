@@ -4,7 +4,7 @@ from tools import Tools
 class Data:
     def __init__(self, predictions=None, areas=None, left=None, right=None):
         self.predictions = Tools.read_csv(predictions)
-        self.areas = Tools.read_csv(areas)
+        self.areas = Tools.read_csv(areas, '\t')
         self.left = left
         self.right = right
 
