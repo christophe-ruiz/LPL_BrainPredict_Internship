@@ -1,14 +1,14 @@
 from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QVBoxLayout, QHBoxLayout, QWidget
 from PyQt5.QtCore import Qt
 
-from model import Modelling
 from data import Data
-from graph import Graph
+from task_thread import ModellingThread, GraphThread
 
 
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.text = ''
         self.action = {
             'graph': True,
             'model': True
@@ -26,23 +26,23 @@ class App(QMainWindow):
         self.__run()
 
     def __set_infos(self):
-        self.__verbose('Setting initial position and size.')
+        self.verbose('Setting initial position and size.')
         self.setGeometry(300, 300, 500, 250)
-        self.__verbose('Setting window title.')
+        self.verbose('Setting window title.')
         self.setWindowTitle('Prediction Data')
 
     def __set_inputs(self):
-        self.__verbose('Setting input bar...')
+        self.verbose('Setting input bar...')
         bar_layout = QHBoxLayout()
         bar = QWidget()
         bar.setLayout(bar_layout)
         widgets = []
         # TODO: Barre supérieure dans laquelle sont rangés les éléments suivants
-        self.__verbose('Setting input labels...')
+        self.verbose('Setting input labels...')
         # TODO: Label "Prediction file"
-        self.__verbose('Setting input textfield...')
+        self.verbose('Setting input textfield...')
         # TODO: Textfield pour path du prediction file
-        self.__verbose('Setting actions..')
+        self.verbose('Setting actions..')
         graph = QCheckBox()
         graph.setCheckState(Qt.Checked)
         graph.stateChanged.connect(lambda: self.__toggle_action('graph'))
@@ -52,23 +52,24 @@ class App(QMainWindow):
         model.setCheckState(Qt.Checked)
         model.stateChanged.connect(lambda: self.__toggle_action('model'))
         widgets.append(model)
-        self.__verbose('Adding widgets to input bar...')
+        self.verbose('Adding widgets to input bar...')
         for w in widgets:
             bar_layout.addWidget(w)
-        self.__verbose('Setting compute button...')
-        compute = QPushButton()
-        compute.setText("COMPUTE")
+        self.verbose('Setting compute button...')
+        compute = QPushButton("COMPUTE")
         compute.clicked.connect(lambda: self.__do_actions())
 
-        self.__verbose('Adding bar to main widget...')
+        self.verbose('Adding bar to main widget...')
         self.main_layout.addWidget(bar)
         self.main_layout.addWidget(compute)
 
     def __compute_model(self):
-        Modelling(data=self.data)
+        self.modelTh = ModellingThread(self, data=self.data)
+        self.modelTh.start()
 
     def __compute_graph(self):
-        Graph(data=self.data)
+        self.graphTh = GraphThread(self, data=self.data)
+        self.graphTh.start()
 
     def __do_actions(self):
         if self.action['graph']:
@@ -78,12 +79,13 @@ class App(QMainWindow):
 
     def __toggle_action(self, which):
         self.action[which] = not self.action[which]
-        self.__verbose(which, 'is now', self.action[which])
+        self.verbose(which, 'is now', self.action[which])
     
-    def __verbose(self, *args):
+    def verbose(self, *args):
         # TODO: écrire le texte dans une barre de statut
-        self.__verbose(*args)
+        self.text = ' '.join(map(str, args))
+        print(*args)
 
     def __run(self):
-        self.__verbose('Running app')
+        self.verbose('Running app')
         self.show()

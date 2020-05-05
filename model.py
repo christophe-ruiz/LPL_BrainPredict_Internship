@@ -1,28 +1,28 @@
 import cv2
 import math
 
-from data import Data
 from visbrain.objects import BrainObj, SceneObj
 
 
 class Modelling:
-    def __init__(self, data=None):
+    def __init__(self, app, data=None):
         # if not isinstance(data, Data):
         #     raise Exception()
-        print('Fetching modelling data...')
+        app.verbose('Fetching modelling data...')
         self.predictions = data.get_predictions()
         self.areas = data.get_areas()
         self.left = data.get_left()
         self.right = data.get_right()
-        print('Options initialization...')
+        app.verbose('Options initialization...')
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.fps = 30
         self.out = cv2.VideoWriter("./outputs/brain_activation.mp4", self.fourcc, self.fps, (1400, 1000))
-        print('Building modelling')
-        self.__modellize()
+        app.verbose('Building modelling')
+        self.__modellize(app)
+        app.verbose('Building complete')
 
-    def __update_brain(self, active_parts, color_data):
-        print('update running')
+    def __update_brain(self, app, active_parts, color_data):
+        app.verbose('update running')
         # Contiendra la liste des parcellations de gauche à activer
         left_data = []
         # Contiendra la liste des couleurs des parcellations de gauche
@@ -73,22 +73,22 @@ class Modelling:
 
         return cv2.cvtColor(sc.render(), cv2.COLOR_BGR2RGB)
 
-    def __modellize(self):
+    def __modellize(self, app):
         # Contient le temps en secondes pendants lequel une image s'affiche
         time = self.predictions.iloc[0, 0]
         # Image de cerveau vierge
-        first_img = self.__update_brain([], [])
+        first_img = self.__update_brain(app, [], [])
         # On affiche cette image tant que les première activations ne sont pas arrivées
         for i in range(math.floor(30 * time)):
             self.out.write(first_img)
         # Pour chaque lignes du fichier predictions.csv
-        for i in range(len(self.predictions.iloc[:, 0])):
+        for i in range(3): # len(self.predictions.iloc[:, 0])
             # Contiendra les parcellations à activer
             activated = []
             # Contiendra la couleur des parcellations à activer
             new_data = []
             # Pour chaque colonne (sauf la première, le temps) à chaque ligne (donc pour chaque parcellation)
-            for j in range(1, len(self.predictions.iloc[i])):
+            for j in range(1, 3):#len(self.predictions.iloc[i])):
                 # Si cette parcellation est à activer (vaut 1.0 en réel soit 1 en entier)
                 if int(self.predictions.iloc[i, j]) == 1:
                     # On parcourt les lignes du fichier brain_areas.tsv
@@ -108,7 +108,7 @@ class Modelling:
             # Le delta du temps d'affichage est calculé
             delta = time_plus - time
             # L'image à afficher est récupérée
-            img = self.__update_brain(activated, new_data)
+            img = self.__update_brain(app, activated, new_data)
             # On affiche l'image pendant delta secondes
             for j in range(math.floor(30 * delta)):
                 self.out.write(img)
