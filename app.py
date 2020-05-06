@@ -10,7 +10,6 @@ from tab_widget import SettingsWidget
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.text, self.predictions_path = None, None
         self.action = {
             'graph': True,
             'modelling': True
@@ -61,9 +60,9 @@ class App(QMainWindow):
         print(*args)
 
     def get_path(self):
-        self.predictions_path, _ = QFileDialog.getOpenFileName(self, 'Open prediction file', filter="CSV files (*.csv)")
-        self.verbose('Selected file :', self.predictions_path)
-
+        predictions_path, _ = QFileDialog.getOpenFileName(self, 'Open prediction file', filter="CSV files (*.csv)")
+        self.verbose('Selected file :', predictions_path)
+        self.data.set_predictions(predictions_path)
 
     def __run(self):
         self.show()
