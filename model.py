@@ -6,8 +6,7 @@ from visbrain.objects import BrainObj, SceneObj
 
 class Modelling:
     def __init__(self, app, data=None):
-        # if not isinstance(data, Data):
-        #     raise Exception()
+        self.update = 0
         app.verbose('Fetching modelling data...')
         self.predictions = data.get_predictions()
         self.areas = data.get_areas()
@@ -19,10 +18,12 @@ class Modelling:
         self.out = cv2.VideoWriter("./outputs/brain_activation.mp4", self.fourcc, self.fps, (1400, 1000))
         app.verbose('Building modelling')
         self.__modellize(app)
+        self.update = 0
         app.verbose('Building complete')
 
     def __update_brain(self, app, active_parts, color_data):
-        app.verbose('update running')
+        self.update += 1
+        app.verbose('update number', self.update, 'running')
         # Contiendra la liste des parcellations de gauche à activer
         left_data = []
         # Contiendra la liste des couleurs des parcellations de gauche
@@ -82,13 +83,13 @@ class Modelling:
         for i in range(math.floor(30 * time)):
             self.out.write(first_img)
         # Pour chaque lignes du fichier predictions.csv
-        for i in range(3): # len(self.predictions.iloc[:, 0])
+        for i in range(len(self.predictions.iloc[:, 0])):
             # Contiendra les parcellations à activer
             activated = []
             # Contiendra la couleur des parcellations à activer
             new_data = []
             # Pour chaque colonne (sauf la première, le temps) à chaque ligne (donc pour chaque parcellation)
-            for j in range(1, 3):#len(self.predictions.iloc[i])):
+            for j in range(1, len(self.predictions.iloc[i])):
                 # Si cette parcellation est à activer (vaut 1.0 en réel soit 1 en entier)
                 if int(self.predictions.iloc[i, j]) == 1:
                     # On parcourt les lignes du fichier brain_areas.tsv

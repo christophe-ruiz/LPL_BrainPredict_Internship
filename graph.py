@@ -22,10 +22,10 @@ class Graph:
             self.animate(app, line)
             app.verbose('Animated plots for timecode:', self.predictions.iloc[line].iat[0])
 
-        app.verbose('Saving file...')
+        app.verbose('Saving graph...')
         animation = self.cam.animate(interval=1205)
         animation.save("./outputs/camera.mp4")
-        app.verbose('File saved.')
+        app.verbose('Graph saved.')
 
     def animate(self, app, when):
         app.verbose('Fetching data...')
