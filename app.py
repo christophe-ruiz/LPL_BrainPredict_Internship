@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, \
 from PyQt5.QtCore import Qt
 
 from data import Data
-from task_thread import ModellingThread, GraphThread
-from tab_widget import SettingsWidget
+from task_thread import ModelingThread, GraphThread
+from tab_widget import SettingsWidget, VideoPlayer
 
 
 class App(QMainWindow):
@@ -12,7 +12,7 @@ class App(QMainWindow):
         super().__init__()
         self.action = {
             'graph': True,
-            'modelling': True
+            'modeling': True
         }
         self.data = Data(predictions='./data/predictions.csv',
                          areas='./data/brain_areas.tsv',
@@ -22,6 +22,9 @@ class App(QMainWindow):
         self.main_layout = QVBoxLayout()
         self.main = QTabWidget()
         self.main.addTab(SettingsWidget(self), "Settings")
+        self.main.addTab(VideoPlayer(''), "Modeling")
+        self.main.addTab(VideoPlayer(''), "Graph")
+
         self.main.setLayout(self.main_layout)
         self.setCentralWidget(self.main)
         self.__run()
@@ -35,7 +38,7 @@ class App(QMainWindow):
         self.setWindowTitle('Prediction Data')
 
     def __compute_model(self):
-        self.modelTh = ModellingThread(self, data=self.data)
+        self.modelTh = ModelingThread(self, data=self.data)
         self.modelTh.start()
 
     def __compute_graph(self):
@@ -45,8 +48,10 @@ class App(QMainWindow):
     def do_actions(self):
         if self.action['graph']:
             self.__compute_graph()
-        if self.action['modelling']:
+        if self.action['modeling']:
             self.__compute_model()
+        if not self.action['modeling'] and not self.action['graph']:
+            self.verbose('Nothing to compute.')
 
     def toggle_action(self, which):
         self.action[which] = not self.action[which]
@@ -62,7 +67,8 @@ class App(QMainWindow):
     def get_path(self):
         predictions_path, _ = QFileDialog.getOpenFileName(self, 'Open prediction file', filter="CSV files (*.csv)")
         self.verbose('Selected file :', predictions_path)
-        self.data.set_predictions(predictions_path)
+        if predictions_path is not None:
+            self.data.set_predictions(predictions_path)
 
     def __run(self):
         self.show()

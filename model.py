@@ -4,10 +4,10 @@ import math
 from visbrain.objects import BrainObj, SceneObj
 
 
-class Modelling:
+class Modeling:
     def __init__(self, app, data=None):
         self.update = 0
-        app.verbose('Fetching modelling data...')
+        app.verbose('Fetching modeling data...')
         self.predictions = data.get_predictions()
         self.areas = data.get_areas()
         self.left = data.get_left()
@@ -16,7 +16,7 @@ class Modelling:
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.fps = 30
         self.out = cv2.VideoWriter("./outputs/brain_activation.mp4", self.fourcc, self.fps, (1400, 1000))
-        app.verbose('Building modelling')
+        app.verbose('Building modeling')
         self.__modellize(app)
         self.update = 0
         app.verbose('Building complete')

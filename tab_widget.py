@@ -1,5 +1,8 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroupBox, QSizePolicy, QVBoxLayout
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroupBox, QSizePolicy, QVBoxLayout, QStyle,\
+    QSlider
 
 
 class SettingsWidget(QWidget):
@@ -35,9 +38,9 @@ class SettingsWidget(QWidget):
         graph.stateChanged.connect(lambda: self.app.toggle_action('graph'))
         widgets.append(graph)
 
-        model = QCheckBox("Modelling")
+        model = QCheckBox("Modeling")
         model.setCheckState(Qt.Checked)
-        model.stateChanged.connect(lambda: self.app.toggle_action('modelling'))
+        model.stateChanged.connect(lambda: self.app.toggle_action('modeling'))
         widgets.append(model)
 
         self.app.verbose('Adding widgets to input bar...')
@@ -54,14 +57,42 @@ class SettingsWidget(QWidget):
         self.app.main_layout.addWidget(compute)
 
 
+class VideoPlayer(QWidget):
+    def __init__(self, video_path):
+        super(VideoPlayer, self).__init__()
+        self.player = QMediaPlayer(flags=QMediaPlayer.VideoSurface)
+        self.video = QVideoWidget()
 
-class GraphOutWidget(QWidget):
-    def __init__(self, app):
-        super(GraphOutWidget, self).__init__()
+        self.playBtn = QPushButton()
+        self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.playBtn.setEnabled(False)
+        self.playBtn.clicked.connect(self.play)
 
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setRange(0, 0)
+        self.slider.sliderMoved.connect(lambda pos: self.player.setPosition(pos))
 
+        self.controls = QHBoxLayout()
+        self.controls.addWidget(self.playBtn)
+        self.controls.addWidget(self.slider)
 
-class ModelingOutWidget(QWidget):
-    def __init__(self, app):
-        super(ModelingOutWidget, self).__init__()
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.video)
+        self.layout.addLayout(self.controls)
 
+        self.player.setVideoOutput(self.video)
+        self.player.stateChanged.connect(self.change_state)
+        self.player.positionChanged.connect(lambda pos: self.slider.setValue(pos))
+        self.player.durationChanged.connect(lambda duration: self.slider.setRange(0, duration))
+
+    def play(self):
+        if self.player.state() == QMediaPlayer.PlayingState:
+            self.player.pause()
+        else:
+            self.player.play()
+
+    def change_state(self):
+        if self.player.state() == QMediaPlayer.PlayingState:
+            self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
+        else:
+            self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
