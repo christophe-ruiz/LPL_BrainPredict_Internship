@@ -3,9 +3,12 @@ import math
 
 from visbrain.objects import BrainObj, SceneObj
 
+from tab_widget import VideoPlayer
+
 
 class Modeling:
     def __init__(self, app, data=None):
+        self.output_path = "./outputs/brain_activation.mp4"
         self.update = 0
         app.verbose('Fetching modeling data...')
         self.predictions = data.get_predictions()
@@ -15,7 +18,7 @@ class Modeling:
         app.verbose('Options initialization...')
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.fps = 30
-        self.out = cv2.VideoWriter("./outputs/brain_activation.mp4", self.fourcc, self.fps, (1400, 1000))
+        self.out = cv2.VideoWriter(self.output_path, self.fourcc, self.fps, (1400, 1000))
         app.verbose('Building modeling')
         self.__modellize(app)
         self.update = 0

@@ -5,9 +5,12 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from celluloid import Camera
 
+from tab_widget import VideoPlayer
+
 
 class Graph:
     def __init__(self, app, data=None):
+        self.output_path = "./outputs/camera.mp4"
         app.verbose('Creating figure...')
         fig = plt.figure(figsize=(32, 18))
 
@@ -24,7 +27,7 @@ class Graph:
 
         app.verbose('Saving graph...')
         animation = self.cam.animate(interval=1205)
-        animation.save("./outputs/camera.mp4")
+        animation.save(self.output_path)
         app.verbose('Graph saved.')
 
     def animate(self, app, when):

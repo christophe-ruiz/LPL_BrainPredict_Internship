@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroupBox, QSizePolicy, QVBoxLayout, QStyle,\
@@ -9,9 +9,9 @@ class SettingsWidget(QWidget):
     def __init__(self, app):
         super(SettingsWidget, self).__init__()
         self.app = app
-        self.__set_inputs()
 
-    def __set_inputs(self):
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
         self.app.verbose('Setting input bar...')
         settings_box = QGroupBox("Compute data as...")
         settings_box.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
@@ -52,9 +52,9 @@ class SettingsWidget(QWidget):
         compute.clicked.connect(lambda: self.app.do_actions())
 
         self.app.verbose('Adding widget to settings tab...')
-        self.app.main_layout.addWidget(file_box)
-        self.app.main_layout.addWidget(settings_box)
-        self.app.main_layout.addWidget(compute)
+        self.layout.addWidget(file_box)
+        self.layout.addWidget(settings_box)
+        self.layout.addWidget(compute)
 
 
 class VideoPlayer(QWidget):
@@ -84,6 +84,13 @@ class VideoPlayer(QWidget):
         self.player.stateChanged.connect(self.change_state)
         self.player.positionChanged.connect(lambda pos: self.slider.setValue(pos))
         self.player.durationChanged.connect(lambda duration: self.slider.setRange(0, duration))
+
+        self.setLayout(self.layout)
+
+        if video_path.strip() != '':
+            self.player.setMedia(QMediaContent(QUrl.fromLocalFile(video_path)))
+            self.playBtn.setEnabled(True)
+            self.play()
 
     def play(self):
         if self.player.state() == QMediaPlayer.PlayingState:

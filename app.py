@@ -4,7 +4,10 @@ from PyQt5.QtCore import Qt
 
 from data import Data
 from task_thread import ModelingThread, GraphThread
+from graph import Graph
 from tab_widget import SettingsWidget, VideoPlayer
+
+import os
 
 
 class App(QMainWindow):
@@ -19,14 +22,13 @@ class App(QMainWindow):
                          left='./parcellation/lh.BN_Atlas.annot',
                          right='./parcellation/rh.BN_Atlas.annot')
         self.__set_infos()
-        self.main_layout = QVBoxLayout()
+
         self.main = QTabWidget()
         self.main.addTab(SettingsWidget(self), "Settings")
-        self.main.addTab(VideoPlayer(''), "Modeling")
-        self.main.addTab(VideoPlayer(''), "Graph")
+        self.main.addTab(VideoPlayer(os.path.abspath("outputs/camera.mp4")), "Graph")
 
-        self.main.setLayout(self.main_layout)
         self.setCentralWidget(self.main)
+
         self.__run()
 
     def __set_infos(self):
@@ -40,10 +42,11 @@ class App(QMainWindow):
     def __compute_model(self):
         self.modelTh = ModelingThread(self, data=self.data)
         self.modelTh.start()
+        self.main.addTab(VideoPlayer(os.path.abspath("outputs/brain_activation.mp4")), "Modelling")
 
     def __compute_graph(self):
-        self.graphTh = GraphThread(self, data=self.data)
-        self.graphTh.start()
+        self.graphTh = Graph(self, data=self.data)
+        self.main.addTab(VideoPlayer(os.path.abspath("outputs/camera.mp4")), "Graph")
 
     def do_actions(self):
         if self.action['graph']:
@@ -69,6 +72,9 @@ class App(QMainWindow):
         self.verbose('Selected file :', predictions_path)
         if predictions_path is not None:
             self.data.set_predictions(predictions_path)
+
+    def get_main(self):
+        return self.main
 
     def __run(self):
         self.show()
