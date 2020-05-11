@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from data import Data
 from task_thread import ModelingThread, GraphThread
 from graph import Graph
+from model import Modeling
 from tab_widget import SettingsWidget, VideoPlayer
 
 import os
@@ -25,7 +26,7 @@ class App(QMainWindow):
 
         self.main = QTabWidget()
         self.main.addTab(SettingsWidget(self), "Settings")
-        self.main.addTab(VideoPlayer(os.path.abspath("outputs/camera.mp4")), "Graph")
+        # self.main.addTab(VideoPlayer(os.path.abspath("outputs/camera.mp4")), "Graph")
 
         self.setCentralWidget(self.main)
 
@@ -40,8 +41,7 @@ class App(QMainWindow):
         self.setWindowTitle('Prediction Data')
 
     def __compute_model(self):
-        self.modelTh = ModelingThread(self, data=self.data)
-        self.modelTh.start()
+        self.modelTh = Modeling(self, data=self.data)
         self.main.addTab(VideoPlayer(os.path.abspath("outputs/brain_activation.mp4")), "Modelling")
 
     def __compute_graph(self):
