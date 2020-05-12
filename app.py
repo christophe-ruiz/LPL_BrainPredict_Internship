@@ -1,11 +1,9 @@
 from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, \
     QVBoxLayout, QHBoxLayout, QWidget, QStatusBar, QTabWidget, QFileDialog
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QThreadPool
 
 from data import Data
 from task_thread import ModelingThread, GraphThread
-from graph import Graph
-from model import Modeling
 from tab_widget import SettingsWidget, VideoPlayer
 
 import os
@@ -22,6 +20,8 @@ class App(QMainWindow):
                          areas='./data/brain_areas.tsv',
                          left='./parcellation/lh.BN_Atlas.annot',
                          right='./parcellation/rh.BN_Atlas.annot')
+        self.threadpool = QThreadPool()
+        self.threadpool.setMaxThreadCount(2)
         self.__set_infos()
 
         self.main = QTabWidget()
@@ -41,12 +41,16 @@ class App(QMainWindow):
         self.setWindowTitle('Prediction Data')
 
     def __compute_model(self):
-        self.modelTh = Modeling(self, data=self.data)
-        self.main.addTab(VideoPlayer(os.path.abspath("outputs/brain_activation.mp4")), "Modelling")
+        model_th = ModelingThread(data=self.data)
+        model_th.signals.msg.connect(lambda msg: self.verbose(*msg))
+        model_th.signals.finished.connect(lambda: self.main.addTab(VideoPlayer(os.path.abspath("outputs/brain_activation.mp4")), "Modelling"))
+        self.threadpool.start(model_th)
 
     def __compute_graph(self):
-        self.graphTh = Graph(self, data=self.data)
-        self.main.addTab(VideoPlayer(os.path.abspath("outputs/camera.mp4")), "Graph")
+        graph_th = GraphThread(data=self.data)
+        graph_th.signals.msg.connect(lambda msg: self.verbose(*msg))
+        graph_th.signals.finished.connect(lambda: self.main.addTab(VideoPlayer(os.path.abspath("outputs/camera.mp4")), "Graph"))
+        self.threadpool.start(graph_th)
 
     def do_actions(self):
         if self.action['graph']:

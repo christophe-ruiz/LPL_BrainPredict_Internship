@@ -1,23 +1,38 @@
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QRunnable, pyqtSlot
 from model import Modeling
 from graph import Graph
+from signals import Signals
 
 
-class ModelingThread(QThread):
-    def __init__(self, app, data):
+class ModelingThread(QRunnable):
+    def __init__(self, data):
         super(ModelingThread, self).__init__()
         self.data = data
-        self.app = app
+        self.signals = Signals()
 
+    def repeat_msg(self, msg):
+        self.signals.msg.emit(msg)
+
+    @pyqtSlot()
     def run(self) -> None:
-        Modeling(self.app, self.data)
+        m = Modeling(self.data)
+        m.signals.msg.connect(self.repeat_msg)
+        m.start()
+        self.signals.finished.emit()
 
 
-class GraphThread(QThread):
-    def __init__(self, app, data):
+class GraphThread(QRunnable):
+    def __init__(self, data):
         super(GraphThread, self).__init__()
         self.data = data
-        self.app = app
+        self.signals = Signals()
 
+    def repeat_msg(self, msg):
+        self.signals.msg.emit(msg)
+
+    @pyqtSlot()
     def run(self) -> None:
-        Graph(self.app, self.data)
+        g = Graph(self.data)
+        g.signals.msg.connect(self.repeat_msg)
+        g.start()
+        self.signals.finished.emit()

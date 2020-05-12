@@ -1,32 +1,32 @@
 import cv2
 import math
 
+from PyQt5.QtCore import QObject
 from visbrain.objects import BrainObj, SceneObj
+from signals import Signals
 
-from tab_widget import VideoPlayer
 
-
-class Modeling:
-    def __init__(self, app, data=None):
+class Modeling(QObject):
+    def __init__(self, data=None):
+        super().__init__()
         self.output_path = "./outputs/brain_activation.mp4"
         self.update = 0
-        app.verbose('Fetching modeling data...')
+        self.signals = Signals()
+
+        self.signals.msg.emit(('Modelling initialization...',))
+
         self.predictions = data.get_predictions()
         self.areas = data.get_areas()
         self.left = data.get_left()
         self.right = data.get_right()
-        app.verbose('Options initialization...')
+
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.fps = 30
         self.out = cv2.VideoWriter(self.output_path, self.fourcc, self.fps, (1400, 1000))
-        app.verbose('Building modeling')
-        self.__modellize(app)
-        self.update = 0
-        app.verbose('Building complete')
 
-    def __update_brain(self, app, active_parts, color_data):
+    def __update_brain(self, active_parts, color_data):
         self.update += 1
-        app.verbose('update number', self.update, 'running')
+        self.signals.msg.emit(('update n°', self.update, 'running'))
         # Contiendra la liste des parcellations de gauche à activer
         left_data = []
         # Contiendra la liste des couleurs des parcellations de gauche
@@ -77,11 +77,12 @@ class Modeling:
 
         return cv2.cvtColor(sc.render(), cv2.COLOR_BGR2RGB)
 
-    def __modellize(self, app):
+    def start(self):
+        self.signals.msg.emit(('Building modeling',))
         # Contient le temps en secondes pendants lequel une image s'affiche
         time = self.predictions.iloc[0, 0]
         # Image de cerveau vierge
-        first_img = self.__update_brain(app, [], [])
+        first_img = self.__update_brain([], [])
         # On affiche cette image tant que les première activations ne sont pas arrivées
         for i in range(math.floor(30 * time)):
             self.out.write(first_img)
@@ -112,10 +113,13 @@ class Modeling:
             # Le delta du temps d'affichage est calculé
             delta = time_plus - time
             # L'image à afficher est récupérée
-            img = self.__update_brain(app, activated, new_data)
+            img = self.__update_brain(activated, new_data)
             # On affiche l'image pendant delta secondes
             for j in range(math.floor(30 * delta)):
                 self.out.write(img)
 
         self.out.release()
         cv2.destroyAllWindows()
+        self.update = 0
+        self.signals.msg.emit(('Building complete',))
+        self.signals.finished.emit()

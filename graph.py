@@ -2,36 +2,37 @@ import string
 import numpy as np
 import seaborn as sns
 
+from PyQt5.QtCore import QObject
 from matplotlib import pyplot as plt
 from celluloid import Camera
+from signals import Signals
 
-from tab_widget import VideoPlayer
 
-
-class Graph:
-    def __init__(self, app, data=None):
+class Graph(QObject):
+    def __init__(self, data=None):
+        super().__init__()
         self.output_path = "./outputs/camera.mp4"
-        app.verbose('Creating figure...')
+        self.signals = Signals()
+        self.signals.msg.emit(('Graph initialization...',))
         fig = plt.figure(figsize=(32, 18))
 
-        app.verbose('Retrieving data to plot')
         self.predictions = data.get_predictions()
         self.areas = data.get_areas()
 
         self.cam = Camera(fig)
-        app.verbose('Camera initialized.')
 
+    def start(self):
         for line in range(1, len(self.predictions)):
-            self.animate(app, line)
-            app.verbose('Animated plots for timecode:', self.predictions.iloc[line].iat[0])
+            self.animate(line)
+            self.signals.msg.emit(('Animated plots for timestamp:', self.predictions.iloc[line].iat[0]))
 
-        app.verbose('Saving graph...')
+        self.signals.msg.emit(('Saving graph...',))
         animation = self.cam.animate(interval=1205)
         animation.save(self.output_path)
-        app.verbose('Graph saved.')
+        self.signals.msg.emit(('Graph saved.',))
 
-    def animate(self, app, when):
-        app.verbose('Fetching data...')
+    def animate(self, when):
+        self.signals.msg.emit(('Computing image...',))
         data = self.predictions.iloc[:int(when + 1)]
         i = 0
         for which in self.predictions.columns[1:]:
@@ -41,10 +42,9 @@ class Graph:
             # Les couleurs en hexadécimal : les caractères retournés par hex() sauf les deux premiers
             # formattés sur deux chifres.
             hex_colors = [hex(c)[2:].zfill(2) for c in colors]
-            app.verbose('Colors calculated.')
 
             i = i + 1
-            app.verbose('Adding plot number', i, 'to figure...')
+
             plt.subplot(6, 1, i)
             plt.tight_layout(1.5)
             plt.xlim(np.min(self.predictions)[0], np.max(self.predictions)[0])
@@ -52,9 +52,9 @@ class Graph:
             plt.xlabel("Time (s)", fontsize=20)
             plt.ylabel("Value", fontsize=20)
 
-            app.verbose('Drawing line...')
+            self.signals.msg.emit(('Drawing line...',))
             p = sns.lineplot(x=data["Time (s)"], y=data[which], data=data, color="#" + ''.join(hex_colors))
             plt.setp(p.lines, linewidth=7)
             p.tick_params(labelsize=17)
         self.cam.snap()
-        app.verbose('Image snapped.')
+        self.signals.msg.emit(('Image snapped.',))
