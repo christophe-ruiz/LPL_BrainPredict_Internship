@@ -5,13 +5,13 @@ import seaborn as sns
 from PyQt5.QtCore import QObject
 from matplotlib import pyplot as plt
 from celluloid import Camera
-from signals import Signals
+from tasks.signals import Signals
 
 
 class Graph(QObject):
     def __init__(self, data=None):
         super().__init__()
-        self.output_path = "./outputs/camera.mp4"
+        self.output_path = "outputs/camera.mp4"
         self.signals = Signals()
         self.signals.msg.emit(('Graph initialization...',))
         fig = plt.figure(figsize=(32, 18))
@@ -30,6 +30,7 @@ class Graph(QObject):
         animation = self.cam.animate(interval=1205)
         animation.save(self.output_path)
         self.signals.msg.emit(('Graph saved.',))
+        self.signals.finished.emit()
 
     def animate(self, when):
         self.signals.msg.emit(('Computing image...',))

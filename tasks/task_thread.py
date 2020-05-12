@@ -1,7 +1,12 @@
 from PyQt5.QtCore import QRunnable, pyqtSlot
-from model import Modeling
-from graph import Graph
-from signals import Signals
+from tasks.model import Modeling
+from tasks.graph import Graph
+from tasks.signals import Signals
+
+# TODO: Refactoriser pour n'avoir qu'une classe.
+"""
+Permet la construction de la modélisation dans un thread
+"""
 
 
 class ModelingThread(QRunnable):
@@ -10,6 +15,9 @@ class ModelingThread(QRunnable):
         self.data = data
         self.signals = Signals()
 
+    """
+    Renvoie les messages du signal msg au parent.
+    """
     def repeat_msg(self, msg):
         self.signals.msg.emit(msg)
 
@@ -17,8 +25,13 @@ class ModelingThread(QRunnable):
     def run(self) -> None:
         m = Modeling(self.data)
         m.signals.msg.connect(self.repeat_msg)
+        m.signals.finished.connect(lambda: self.signals.finished.emit())
         m.start()
-        self.signals.finished.emit()
+
+
+"""
+Permet la construction du graphique dans un thread
+"""
 
 
 class GraphThread(QRunnable):
@@ -27,6 +40,9 @@ class GraphThread(QRunnable):
         self.data = data
         self.signals = Signals()
 
+    """
+    Renvoie les messages du signal msg au parent.
+    """
     def repeat_msg(self, msg):
         self.signals.msg.emit(msg)
 
@@ -34,5 +50,5 @@ class GraphThread(QRunnable):
     def run(self) -> None:
         g = Graph(self.data)
         g.signals.msg.connect(self.repeat_msg)
+        g.signals.finished.connect(lambda: self.signals.finished.emit())
         g.start()
-        self.signals.finished.emit()

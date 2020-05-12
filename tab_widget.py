@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroupBox, QSizePolicy, QVBoxLayout, QStyle,\
-    QSlider
+    QSlider, QGridLayout
 
 
 class SettingsWidget(QWidget):
@@ -10,7 +10,7 @@ class SettingsWidget(QWidget):
         super(SettingsWidget, self).__init__()
         self.app = app
 
-        self.layout = QVBoxLayout()
+        self.layout = QGridLayout()
         self.setLayout(self.layout)
         self.app.verbose('Setting input bar...')
         settings_box = QGroupBox("Compute data as...")
@@ -52,9 +52,9 @@ class SettingsWidget(QWidget):
         compute.clicked.connect(lambda: self.app.do_actions())
 
         self.app.verbose('Adding widget to settings tab...')
-        self.layout.addWidget(file_box)
-        self.layout.addWidget(settings_box)
-        self.layout.addWidget(compute)
+        self.layout.addWidget(file_box, 0, 1)
+        self.layout.addWidget(settings_box, 1, 1)
+        self.layout.addWidget(compute, 2, 1)
 
 
 class VideoPlayer(QWidget):

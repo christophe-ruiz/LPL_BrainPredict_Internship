@@ -3,13 +3,13 @@ import math
 
 from PyQt5.QtCore import QObject
 from visbrain.objects import BrainObj, SceneObj
-from signals import Signals
+from tasks.signals import Signals
 
 
 class Modeling(QObject):
     def __init__(self, data=None):
         super().__init__()
-        self.output_path = "./outputs/brain_activation.mp4"
+        self.output_path = "outputs/brain_activation.mp4"
         self.update = 0
         self.signals = Signals()
 

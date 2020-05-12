@@ -1,15 +1,18 @@
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, \
-    QVBoxLayout, QHBoxLayout, QWidget, QStatusBar, QTabWidget, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QStatusBar, QTabWidget, QFileDialog
 from PyQt5.QtCore import QThreadPool
 
-from data import Data
-from task_thread import ModelingThread, GraphThread
+from miscellanous.data import Data
+from tasks.task_thread import ModelingThread, GraphThread
 from tab_widget import SettingsWidget, VideoPlayer
 
 import os
+import subprocess
 
 
 class App(QMainWindow):
+    """
+    Initialisation de la fenêtre principale contenant le tabwidget.
+    """
     def __init__(self):
         super().__init__()
         self.action = {
@@ -20,19 +23,24 @@ class App(QMainWindow):
                          areas='./data/brain_areas.tsv',
                          left='./parcellation/lh.BN_Atlas.annot',
                          right='./parcellation/rh.BN_Atlas.annot')
+        # threadpool sera le gestionnaire des threads executant les tâches de modelisation et de création du graphique.
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(2)
         self.__set_infos()
 
+        # widget à onglets
         self.main = QTabWidget()
         self.main.addTab(SettingsWidget(self), "Settings")
-        # self.main.addTab(VideoPlayer(os.path.abspath("outputs/camera.mp4")), "Graph")
 
         self.setCentralWidget(self.main)
 
         self.__run()
 
+    """
+    Mise en place de la barre de statut, de la position initiale et du titre.
+    """
     def __set_infos(self):
+        # Barre de statut qui affichera des informations sur le déroulement des tâches.
         self.statusBar = QStatusBar()
         self.setStatusBar(self.statusBar)
         self.verbose('Setting initial position and size.')
@@ -40,46 +48,89 @@ class App(QMainWindow):
         self.verbose('Setting window title.')
         self.setWindowTitle('Prediction Data')
 
+    """
+    Gestion de la création de la modélisation.
+    """
     def __compute_model(self):
+        # model_th est un thread destiné à créer la modélisation.
         model_th = ModelingThread(data=self.data)
+        # Les messages reçus par le signal "msg" seront traités par verbose pour les afficher.
         model_th.signals.msg.connect(lambda msg: self.verbose(*msg))
-        model_th.signals.finished.connect(lambda: self.main.addTab(VideoPlayer(os.path.abspath("outputs/brain_activation.mp4")), "Modelling"))
+        # Une fois le travail fini, on rajoute un onglet contenant la vidéo du résultat.
+        model_th.signals.finished.connect(lambda: self.__add_video_tab("Modeling", "outputs/brain_activation.mp4"))
+        # On demande à threadpool de lancer le thread.
         self.threadpool.start(model_th)
 
+    """
+    Gestion de la création du graphique.
+    """
     def __compute_graph(self):
+        # graph_th est un thread destiné à créer la modélisation.
         graph_th = GraphThread(data=self.data)
+        # Les messages reçus par le signal "msg" seront traités par verbose pour les afficher.
         graph_th.signals.msg.connect(lambda msg: self.verbose(*msg))
-        graph_th.signals.finished.connect(lambda: self.main.addTab(VideoPlayer(os.path.abspath("outputs/camera.mp4")), "Graph"))
+        # Une fois le travail fini, on rajoute un onglet contenant la vidéo du résultat.
+        graph_th.signals.finished.connect(lambda: self.__add_video_tab("Graph", "outputs/camera.mp4"))
+        # On demande à threadpool de lancer le thread.
         self.threadpool.start(graph_th)
 
+    """
+    Ajoute un onglet au tabwidget.
+    """
+    def __add_video_tab(self, name, path):
+        self.main.addTab(VideoPlayer(os.path.abspath(path)), name)
+
+    """
+    Fait les traitements demandées (création du graphique et/ou de la modélisation).
+    """
     def do_actions(self):
-        if self.action['graph']:
-            self.__compute_graph()
-        if self.action['modeling']:
-            self.__compute_model()
+        # Si on a rien sélectionné, on ne fait rien, sinon on crée le dossier "outputs" s'il n'existe pas
+        # puis on traite la demande.
         if not self.action['modeling'] and not self.action['graph']:
             self.verbose('Nothing to compute.')
+        else:
+            subprocess.call(["mkdir", "-p", "outputs"])
 
+            if self.action['graph']:
+                self.__compute_graph()
+            if self.action['modeling']:
+                self.__compute_model()
+
+    """
+    Permet de selectionner les traitements
+    """
     def toggle_action(self, which):
         self.action[which] = not self.action[which]
         if self.action[which]:
             self.verbose('Predictions will be computed as a', which)
         else:
             self.verbose('Predictions will not be computed as a', which)
-    
+
+    """
+    Permet d'écrire à la fois dans la console et dans la barre de statut.
+    """
     def verbose(self, *args):
         self.statusBar.showMessage(' '.join(map(str, args)), 5000)
         print(*args)
 
+    """
+    Permet de récupérer le chemin du fichier de prédictions.
+    """
     def get_path(self):
         predictions_path, _ = QFileDialog.getOpenFileName(self, 'Open prediction file', filter="CSV files (*.csv)")
         self.verbose('Selected file :', predictions_path)
-        if predictions_path is not None:
+        if predictions_path != "":
             self.data.set_predictions(predictions_path)
 
+    """
+    Récupérer le widget principal.
+    """
     def get_main(self):
         return self.main
 
+    """
+    Lancer l'application
+    """
     def __run(self):
         self.show()
         self.verbose('App started')
