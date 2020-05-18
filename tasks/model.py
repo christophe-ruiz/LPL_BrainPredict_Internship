@@ -13,7 +13,7 @@ class Modeling(QObject):
         self.update = 0
         self.signals = Signals()
 
-        self.signals.msg.emit(('Modelling initialization...',))
+        self.signals.msg.emit(('Modeling initialization...',))
 
         self.predictions = data.get_predictions()
         self.areas = data.get_areas()

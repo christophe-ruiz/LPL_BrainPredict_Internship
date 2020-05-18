@@ -1,6 +1,6 @@
 from app import App
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QCoreApplication, Qt
+from PyQt5.QtCore import Qt
 import sys
 
 

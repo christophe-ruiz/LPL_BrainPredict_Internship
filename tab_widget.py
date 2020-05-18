@@ -27,8 +27,10 @@ class SettingsWidget(QWidget):
         path_btn.clicked.connect(self.app.get_path)
 
         file_layout = QVBoxLayout()
+        file_layout.setAlignment(Qt.AlignCenter)
         file_layout.addWidget(path_btn)
         file_box.setLayout(file_layout)
+        file_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.app.verbose('Setting action checkboxes...')
         widgets = []
@@ -52,9 +54,9 @@ class SettingsWidget(QWidget):
         compute.clicked.connect(lambda: self.app.do_actions())
 
         self.app.verbose('Adding widget to settings tab...')
-        self.layout.addWidget(file_box, 0, 1)
-        self.layout.addWidget(settings_box, 1, 1)
-        self.layout.addWidget(compute, 2, 1)
+        self.layout.addWidget(file_box, 0, 1, alignment=Qt.AlignCenter)
+        self.layout.addWidget(settings_box, 1, 1, alignment=Qt.AlignCenter)
+        self.layout.addWidget(compute, 2, 1, alignment=Qt.AlignCenter)
 
 
 class VideoPlayer(QWidget):
