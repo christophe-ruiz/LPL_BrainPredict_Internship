@@ -3,6 +3,7 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroupBox, QSizePolicy, QVBoxLayout, QStyle,\
     QSlider, QGridLayout
+from elements.CollapsibleSettingsBox import *
 
 
 class SettingsWidget(QWidget):
@@ -53,8 +54,11 @@ class SettingsWidget(QWidget):
         compute = QPushButton("COMPUTE")
         compute.clicked.connect(lambda: self.app.do_actions())
 
+        test = CollapsibleSettingsBox()
+
         self.app.verbose('Adding widget to settings tab...')
         self.layout.addWidget(file_box, 0, 1, alignment=Qt.AlignCenter)
+        self.layout.addWidget(test, 1, 0, alignment=Qt.AlignCenter)
         self.layout.addWidget(settings_box, 1, 1, alignment=Qt.AlignCenter)
         self.layout.addWidget(compute, 2, 1, alignment=Qt.AlignCenter)
 
