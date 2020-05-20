@@ -1,4 +1,5 @@
 from miscellanous.tools import Tools
+from PyQt5.QtCore import pyqtSignal
 
 
 class Data:
@@ -7,6 +8,7 @@ class Data:
         self.areas = Tools.read_csv(areas, '\t')
         self.left = left
         self.right = right
+        self.changed = pyqtSignal()
 
     """
         GETTERS
@@ -32,13 +34,8 @@ class Data:
         self.left = left
         
     def set_predictions(self, predictions):
-        if isinstance(predictions, str):
-            self.predictions = Tools.read_csv(predictions)
-        else:
-            print('Predictions passed as parameters of set_predictions() is not of type', str.__name__)
+        self.predictions = Tools.read_csv(predictions)
 
     def set_areas(self, areas):
-        if isinstance(areas, str):
-            self.areas = Tools.read_csv(areas, '\t')
-        else:
-            print('Areas passed as parameters of set_areas() is not of type', str.__name__)
+        self.areas = Tools.read_csv(areas, '\t')
+
