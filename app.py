@@ -3,7 +3,7 @@ from PyQt5.QtCore import QThreadPool
 
 from miscellanous.data import Data
 from tasks.task_thread import ModelingThread, GraphThread
-from tab_widget import SettingsWidget, VideoPlayer
+from settings_widget import SettingsWidget, VideoPlayer
 
 import os
 import subprocess
@@ -15,6 +15,7 @@ class App(QMainWindow):
     """
     def __init__(self):
         super().__init__()
+        self.paths = dict()
         self.action = {
             'graph': True,
             'modeling': True
@@ -116,11 +117,23 @@ class App(QMainWindow):
     """
     Permet de récupérer le chemin du fichier de prédictions.
     """
+    #TODO: A fusionner avec get_input_file()
     def get_path(self):
         predictions_path, _ = QFileDialog.getOpenFileName(self, 'Open prediction file', filter="CSV files (*.csv)")
         self.verbose('Selected file :', predictions_path)
         if predictions_path != "":
             self.data.set_predictions(predictions_path)
+
+    """
+    Permet de récupérer les chemins des fichiers d'entrée.
+    """
+    def get_input_file(self, filename, filetype):
+        path, _ = QFileDialog.getOpenFileName(self, "Open" + filename + "file", filter=filetype)
+        if path != "":
+            self.paths[filename] = path
+        self.verbose('Selected ' + filename + ' file :', path)
+
+
 
     """
     Récupérer le widget principal.

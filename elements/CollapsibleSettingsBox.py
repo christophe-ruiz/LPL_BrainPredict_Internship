@@ -1,5 +1,5 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea, QToolButton, QSizePolicy, QVBoxLayout, QCheckBox
-from PyQt5.QtCore import *
 
 
 class CollapsibleSettingsBox(QWidget):
@@ -28,20 +28,22 @@ class CollapsibleSettingsBox(QWidget):
         self.layout.addWidget(self.toggle)
         self.layout.addWidget(self.content)
 
-        self.set_list(['Test 1', 'Test 2'])
+        self.choices = list()
         self.checked_choices = dict()
+        self.set_list(['Test 1', 'Test 2', 'Test 3'])
 
     def action(self):
         checked = self.toggle.isChecked()
         self.toggle.setArrowType(Qt.DownArrow if not checked else Qt.RightArrow)
 
-    def choice(self, option):
-        self.checked_choices[option] = (True if option in self.checked_choices and not self.checked_choices[option] else False)
+    def choice(self):
+        for c in self.choices:
+            self.checked_choices[c.text()] = True if c.isChecked() else False
         print(self.checked_choices)
 
     def set_list(self, options):
         for o in options:
             c = QCheckBox(o)
-            c.stateChanged.connect(lambda: self.choice(o))
+            c.stateChanged.connect(lambda: self.choice())
+            self.choices.append(c)
             self.choice_list.addWidget(c)
-
