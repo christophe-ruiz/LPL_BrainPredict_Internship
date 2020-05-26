@@ -1,5 +1,6 @@
 from miscellanous.tools import Tools
 from PyQt5.QtCore import pyqtSignal
+from miscellanous.data_signals import DataSignals
 
 
 class Data:
@@ -10,7 +11,8 @@ class Data:
         self.right = right
         self.video = video
         self.audio = audio
-        self.changed = pyqtSignal()
+
+        self.signals = DataSignals()
 
     """
         GETTERS
@@ -43,13 +45,14 @@ class Data:
 
     def set_audio(self, audio):
         self.audio = audio
+        self.signals.audio.emit(audio)
 
     def set_video(self, video):
         self.video = video
+        self.signals.video.emit(video)
         
     def set_predictions(self, predictions):
         self.predictions = Tools.read_csv(predictions)
 
     def set_areas(self, areas):
         self.areas = Tools.read_csv(areas, '\t')
-

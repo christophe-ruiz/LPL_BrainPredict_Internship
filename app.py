@@ -128,12 +128,11 @@ class App(QMainWindow):
     Permet de récupérer les chemins des fichiers d'entrée.
     """
     def get_input_file(self, filename, filetype):
-        path, _ = QFileDialog.getOpenFileName(self, "Open" + filename + "file", filter=filetype)
+        path, _ = QFileDialog.getOpenFileName(self, "Open " + filename + " file", filter=filetype)
+        self.verbose('Selected ' + filename + ' file :', path)
         if path != "":
             self.paths[filename] = path
-        self.verbose('Selected ' + filename + ' file :', path)
-
-
+            return path
 
     """
     Récupérer le widget principal.

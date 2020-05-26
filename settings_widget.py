@@ -58,8 +58,8 @@ class SettingsWidget(QWidget):
         region_selector = CollapsibleSettingsBox()
 
         kw = dict(
-            audio="Audio files (*.mp3, *.wav, *.ogg, *.flac)",
-            video="Video files (*.avi, *.mp4)"
+            audio="Wav file (*.wav)",
+            video="Video file (*.avi, *.mp4)"
         )
         test = InputMediaBox(self.app, **kw)
 
