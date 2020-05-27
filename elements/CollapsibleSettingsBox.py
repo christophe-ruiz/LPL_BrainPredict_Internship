@@ -3,8 +3,9 @@ from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea, QToolButton, QSizePoli
 
 
 class CollapsibleSettingsBox(QWidget):
-    def __init__(self):
+    def __init__(self, data):
         super().__init__()
+        self.data = data
         self.toggle = QToolButton()
         self.toggle.setCheckable(True)
         self.toggle.setText("Regions of Interest")
@@ -30,7 +31,7 @@ class CollapsibleSettingsBox(QWidget):
 
         self.choices = list()
         self.checked_choices = dict()
-        self.set_list(['Test 1', 'Test 2', 'Test 3'])
+        self.set_list(self.data.get_areas()["Name"].tolist())
 
     def action(self):
         checked = self.toggle.isChecked()
@@ -47,3 +48,6 @@ class CollapsibleSettingsBox(QWidget):
             c.stateChanged.connect(lambda: self.choice())
             self.choices.append(c)
             self.choice_list.addWidget(c)
+
+    def set_data(self, data):
+        self.data = data

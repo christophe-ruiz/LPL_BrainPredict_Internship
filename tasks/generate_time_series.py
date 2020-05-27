@@ -47,7 +47,7 @@ def speech_features (pred_path, out_dir, language):
 	"""
 
 	audio_input = "%s/Inputs/speech"%out_dir
-	audio_output = "%s/Outputs/generated_time_series/speech"%out_dir
+	audio_output = "%s/outputs/generated_time_series/speech"%out_dir
 
 	if language == "fr":
 		lang = "fra"
@@ -72,10 +72,10 @@ def facial_features (pred_path, out_dir, openface_path):
     """ facial features  """
 
     #video_input = "%s/Inputs/video"%out_dir
-    video_output = "%s/Outputs/generated_time_series/video/"%out_dir
+    video_output = "%s/outputs/generated_time_series/video/"%out_dir
     video_path = glob.glob ("%s/Inputs/video/*.avi"%out_dir)
 
-    energy_output = "%s/Outputs/generated_time_series/video/"%out_dir
+    energy_output = "%s/outputs/generated_time_series/video/"%out_dir
 
     if len (video_path) == 0:
     	print ("Error: there no input video!")
@@ -84,7 +84,7 @@ def facial_features (pred_path, out_dir, openface_path):
     	video_path = video_path[0]
 
     video_name = video_path. split ('/')[-1]. split ('.')[0]
-    #openface_csv_file = "%s/Outputs/generated_time_series/video/%/%.csv"%(out_dir,video_name)
+    #openface_csv_file = "%s/outputs/generated_time_series/video/%/%.csv"%(out_dir,video_name)
 
     if out_dir[-1] != '/':
     	out_dir += '/'
@@ -102,8 +102,8 @@ def facial_features (pred_path, out_dir, openface_path):
 def extra_features (pred_path, out_dir, type):
     """ eyetracking data """
 
-    video_output = "%s/Outputs/generated_time_series/video"%out_dir
-    eyetracking_output = "%s/Outputs/generated_time_series/%s"%(out_dir, type)
+    video_output = "%s/outputs/generated_time_series/video"%out_dir
+    eyetracking_output = "%s/outputs/generated_time_series/%s"%(out_dir, type)
     video_path = glob.glob ("%s/Inputs/video/*.avi"%out_dir)
     if len (video_path) == 0:
     	print ("Error: there is no input video!")
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     if args. pred_module_path [-1] == '/':
     	args. pred_module_path = args. pred_module_path [:-1]
 
-    out_dir =  "%s/Outputs/generated_time_series/"%args.input_dir
+    out_dir =  "%s/outputs/generated_time_series/"%args.input_dir
 
     # GET REGIONS NAMES FOR THEIR CODES
     brain_areas_desc = pd. read_csv ("brain_areas.tsv", sep = '\t', header = 0)
@@ -162,12 +162,12 @@ if __name__ == '__main__':
     	regions. append (brain_areas_desc . loc [brain_areas_desc ["Code"] == num_region, "Name"]. values [0])
 
     """ CREATE OUTPUT DIRECTORIES OF THE GENERATED TIME SERIES """
-    for dirct in ["%s/Outputs"%args.input_dir, out_dir, "%s/Outputs/generated_time_series/speech"%args.input_dir, \
-    			 "%s/Outputs/generated_time_series/video"%args.input_dir, \
-                 "%s/Outputs/generated_time_series/eyetracking"%args.input_dir,\
-                 "%s/Outputs/generated_time_series/emotions"%args.input_dir,\
-                 "%s/Outputs/generated_time_series/energy"%args.input_dir,\
-                 "%s/Outputs/generated_time_series/smiles"%args.input_dir\
+    for dirct in ["%s/outputs"%args.input_dir, out_dir, "%s/outputs/generated_time_series/speech"%args.input_dir, \
+    			 "%s/outputs/generated_time_series/video"%args.input_dir, \
+                 "%s/outputs/generated_time_series/eyetracking"%args.input_dir,\
+                 "%s/outputs/generated_time_series/emotions"%args.input_dir,\
+                 "%s/outputs/generated_time_series/energy"%args.input_dir,\
+                 "%s/outputs/generated_time_series/smiles"%args.input_dir\
                  ]:
     	if not os.path.exists (dirct):
     		os.makedirs (dirct)

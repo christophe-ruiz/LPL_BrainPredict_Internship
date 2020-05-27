@@ -55,7 +55,7 @@ class SettingsWidget(QWidget):
         compute = QPushButton("COMPUTE")
         compute.clicked.connect(lambda: self.app.do_actions())
 
-        region_selector = CollapsibleSettingsBox()
+        region_selector = CollapsibleSettingsBox(self.app.get_data())
 
         kw = dict(
             audio="Wav file (*.wav)",

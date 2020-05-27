@@ -47,7 +47,7 @@ class App(QMainWindow):
         self.verbose('Setting initial position and size.')
         self.setGeometry(300, 300, 500, 250)
         self.verbose('Setting window title.')
-        self.setWindowTitle('Prediction Data')
+        self.setWindowTitle('Prediction App')
 
     """
     Gestion de la création de la modélisation.
@@ -139,6 +139,12 @@ class App(QMainWindow):
     """
     def get_main(self):
         return self.main
+
+    """
+    Récupérer les chemins des fichiers de données
+    """
+    def get_data(self):
+        return self.data
 
     """
     Lancer l'application
