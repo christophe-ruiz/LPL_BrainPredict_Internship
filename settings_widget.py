@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroup
     QSlider, QGridLayout
 from elements.CollapsibleSettingsBox import *
 from elements.InputMediaBox import *
+import subprocess
 
 
 class SettingsWidget(QWidget):
@@ -55,20 +56,24 @@ class SettingsWidget(QWidget):
         compute = QPushButton("COMPUTE")
         compute.clicked.connect(lambda: self.app.do_actions())
 
+        test_generate = QPushButton("TEST TIME SERIES GENERATION")
+        test_generate.clicked.connect(lambda: self.generate_time_series)
+
         region_selector = CollapsibleSettingsBox(self.app.get_data())
 
         kw = dict(
             audio="Wav file (*.wav)",
             video="Video file (*.avi, *.mp4)"
         )
-        test = InputMediaBox(self.app, **kw)
+        input_media = InputMediaBox(self.app, **kw)
 
         self.app.verbose('Adding widget to settings tab...')
         self.layout.addWidget(file_box, 0, 1, alignment=Qt.AlignCenter)
         self.layout.addWidget(region_selector, 1, 0, alignment=Qt.AlignCenter)
         self.layout.addWidget(settings_box, 1, 1, alignment=Qt.AlignCenter)
         self.layout.addWidget(compute, 2, 1, alignment=Qt.AlignCenter)
-        self.layout.addWidget(test, 0, 0, alignment=Qt.AlignCenter)
+        self.layout.addWidget(test_generate, 3, 1, alignment=Qt.AlignCenter)
+        self.layout.addWidget(input_media, 0, 0, alignment=Qt.AlignCenter)
 
 
 class VideoPlayer(QWidget):
@@ -117,3 +122,8 @@ class VideoPlayer(QWidget):
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
         else:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+
+    def generate_time_series(self):
+        subprocess.call("python tasks/generate_time_series.py -rg 1 2 3 4 5 6 -lg fr -pmp PredictionModule -in Demo "
+                        "-ofp ../../Téléchargements/OpenFace-master".split())
+
