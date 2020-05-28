@@ -2,9 +2,9 @@ from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroupBox, QSizePolicy, QVBoxLayout, QStyle,\
-    QSlider, QGridLayout
-from elements.CollapsibleSettingsBox import *
-from elements.InputMediaBox import *
+    QSlider, QGridLayout, QComboBox
+from elements.CollapsibleSettingsBox import CollapsibleSettingsBox
+from elements.InputMediaBox import InputMediaBox
 import subprocess
 
 
@@ -34,6 +34,10 @@ class SettingsWidget(QWidget):
         file_layout.addWidget(path_btn)
         file_box.setLayout(file_layout)
         file_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        human_or_robot = QComboBox()
+        human_or_robot.addItems(["Human-Human", "Human-Robot"])
+        human_or_robot.currentIndexChanged.connect(lambda: self.select_conversation_type(human_or_robot.currentText()))
 
         self.app.verbose('Setting action checkboxes...')
         widgets = []
@@ -74,6 +78,17 @@ class SettingsWidget(QWidget):
         self.layout.addWidget(compute, 2, 1, alignment=Qt.AlignCenter)
         self.layout.addWidget(test_generate, 3, 1, alignment=Qt.AlignCenter)
         self.layout.addWidget(input_media, 0, 0, alignment=Qt.AlignCenter)
+        self.layout.addWidget(human_or_robot, 2, 0, alignment=Qt.AlignCenter)
+
+    def select_conversation_type(self, conv_type):
+        if conv_type == 'Human-Human':
+            self.app.verbose('h')
+        elif conv_type == 'Human-Robot':
+            self.app.verbose('r')
+
+    def generate_time_series(self):
+        subprocess.call("python tasks/generate_time_series.py -rg 1 2 3 4 5 6 -lg fr -pmp PredictionModule -in Demo "
+                        "-ofp ../../Téléchargements/OpenFace-master".split())
 
 
 class VideoPlayer(QWidget):
@@ -122,8 +137,4 @@ class VideoPlayer(QWidget):
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
         else:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
-
-    def generate_time_series(self):
-        subprocess.call("python tasks/generate_time_series.py -rg 1 2 3 4 5 6 -lg fr -pmp PredictionModule -in Demo "
-                        "-ofp ../../Téléchargements/OpenFace-master".split())
 

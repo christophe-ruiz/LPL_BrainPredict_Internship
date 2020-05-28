@@ -54,12 +54,12 @@ def speech_features (pred_path, out_dir, language):
 	elif language == "eng":
 		lang = "eng"
 
-	os. system ("python %s/src/utils/SPPAS/sppas/bin/normalize.py -r %s/src/utils/SPPAS/resources/vocab/eng.vocab -I %s  -l %s -e .TextGrid --quiet"%(pred_path, pred_path, audio_input, lang))
-	os. system ("python %s/src/utils/SPPAS/sppas/bin/phonetize.py  -I %s -l %s -e .TextGrid"%(pred_path, audio_input, lang))
-	os. system ("python %s/src/utils/SPPAS/sppas/bin/alignment.py  -I %s -l %s -e .TextGrid --aligner basic"%(pred_path, audio_input, lang))
+	os. system ("python %s/tasks/utils/SPPAS/sppas/bin/normalize.py -r %s/tasks/utils/SPPAS/resources/vocab/eng.vocab -I %s  -l %s -e .TextGrid --quiet"%(pred_path, pred_path, audio_input, lang))
+	os. system ("python %s/tasks/utils/SPPAS/sppas/bin/phonetize.py  -I %s -l %s -e .TextGrid"%(pred_path, audio_input, lang))
+	os. system ("python %s/tasks/utils/SPPAS/sppas/bin/alignment.py  -I %s -l %s -e .TextGrid --aligner basic"%(pred_path, audio_input, lang))
 
-	out = os. system ("python %s/src/generate_ts/speech_features.py %s %s/ -lg %s -n"%(pred_path, audio_input, audio_output, language))
-	out = os. system ("python %s/src/generate_ts/speech_features.py %s %s/ -l -lg %s -n"%(pred_path, audio_input, audio_output, language))
+	out = os. system ("python %s/tasks/generate_ts/speech_features.py %s %s/ -lg %s -n"%(pred_path, audio_input, audio_output, language))
+	out = os. system ("python %s/tasks/generate_ts/speech_features.py %s %s/ -l -lg %s -n"%(pred_path, audio_input, audio_output, language))
 
 	if out_dir[-1] != '/':
 		out_dir += '/'
@@ -89,9 +89,9 @@ def facial_features (pred_path, out_dir, openface_path):
     if out_dir[-1] != '/':
     	out_dir += '/'
 
-    os. system ("python %s/src/generate_ts/facial_action_units.py %s %s -op %s"%(pred_path, video_path, video_output, openface_path))
+    os. system ("python %s/tasks/generate_ts/facial_action_units.py %s %s -op %s"%(pred_path, video_path, video_output, openface_path))
     openface_features = glob.glob (video_output + "/" + video_path[:-4]. split ('/')[-1] + "/*.csv")[0]
-    os. system ("python %s/src/generate_ts/energy.py %s %s -faf %s -d"%(pred_path, video_path, energy_output, openface_features))
+    os. system ("python %s/tasks/generate_ts/energy.py %s %s -faf %s -d"%(pred_path, video_path, energy_output, openface_features))
 
     video_features = glob.glob (video_output + "/*.pkl")
     video_feats = pd. read_pickle (video_features[0])
@@ -119,17 +119,17 @@ def extra_features (pred_path, out_dir, type):
 
     if type == "eyetracking":
         gaze_coordinates_file = glob.glob ("%s/Inputs/eyetracking/*.pkl"%out_dir)[0]
-        out = os. system ("python %s/src/generate_ts/eyetracking.py %s %s -d -eye %s -faf %s -sv"%(pred_path, video_path, eyetracking_output, gaze_coordinates_file, openface_features))
+        out = os. system ("python %s/tasks/generate_ts/eyetracking.py %s %s -d -eye %s -faf %s -sv"%(pred_path, video_path, eyetracking_output, gaze_coordinates_file, openface_features))
 
     elif type == "emotions":
-        emotion_module_path = pred_path + "/src/utils/face_classification"
-        out = os. system ("python %s/src/generate_ts/generate_emotions_ts.py -d %s %s -fcp %s"%(pred_path, video_path, eyetracking_output, emotion_module_path))
+        emotion_module_path = pred_path + "/tasks/utils/face_classification"
+        out = os. system ("python %s/tasks/generate_ts/generate_emotions_ts.py -d %s %s -fcp %s"%(pred_path, video_path, eyetracking_output, emotion_module_path))
 
     elif type == "energy":
-        out = os. system ("python %s/src/generate_ts/energy.py %s %s -d -faf %s"%(pred_path, video_path, eyetracking_output, openface_features))
+        out = os. system ("python %s/tasks/generate_ts/energy.py %s %s -d -faf %s"%(pred_path, video_path, eyetracking_output, openface_features))
 
     elif type == "smiles":
-        out = os. system ("python %s/src/generate_ts/dlib_smiles.py -d %s %s"%(pred_path, video_path, eyetracking_output))
+        out = os. system ("python %s/tasks/generate_ts/dlib_smiles.py -d %s %s"%(pred_path, video_path, eyetracking_output))
 
 
     eyetracking_filename = glob.glob ("%s/*.pkl"%eyetracking_output)[0]
