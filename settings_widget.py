@@ -61,7 +61,7 @@ class SettingsWidget(QWidget):
         compute.clicked.connect(lambda: self.app.do_actions())
 
         test_generate = QPushButton("TEST TIME SERIES GENERATION")
-        test_generate.clicked.connect(lambda: self.generate_time_series)
+        test_generate.clicked.connect(lambda: self.generate_time_series())
 
         region_selector = CollapsibleSettingsBox(self.app.get_data())
 
@@ -87,6 +87,7 @@ class SettingsWidget(QWidget):
             self.app.verbose('r')
 
     def generate_time_series(self):
+        print('click')
         subprocess.call("python tasks/generate_time_series.py -rg 1 2 3 4 5 6 -lg fr -pmp PredictionModule -in Demo "
                         "-ofp ../../Téléchargements/OpenFace-master".split())
 
