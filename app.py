@@ -119,7 +119,7 @@ class App(QMainWindow):
     """
     #TODO: A fusionner avec get_input_file()
     def get_path(self):
-        predictions_path, _ = QFileDialog.getOpenFileName(self, 'Open prediction file', filter="CSV files (*.csv)")
+        predictions_path, _ = QFileDialog.getOpenFileName(self, 'Open PredictionModule file', filter="CSV files (*.csv)")
         self.verbose('Selected file :', predictions_path)
         if predictions_path != "":
             self.data.set_predictions(predictions_path)

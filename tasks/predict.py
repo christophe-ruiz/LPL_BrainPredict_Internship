@@ -44,11 +44,11 @@ def get_features_from_lagged (lagged_variables):
 #---------------------------------------------------#
 def get_predictors (model_name, region, type, path):
     """
-    model_name: name the prediction model
+    model_name: name the PredictionModule model
     region: brain area
     type: interaction type (h (human-human) or r (human-robot))
     """
-    model_params = pd. read_csv ("%s/results/prediction/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
+    model_params = pd. read_csv ("%s/results/PredictionModule/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
     print (model_params. loc [model_params["region"] == "%s"%region]["predictors_dict"])
     predictors = model_params . loc [model_params["region"] == "%s"%region]["predictors_dict"]. iloc [0]
 
@@ -57,11 +57,11 @@ def get_predictors (model_name, region, type, path):
 #---------------------------------------------------#
 def get_predictors_dict (model_name, region, type, path):
     """
-    model_name: name the prediction model
+    model_name: name the PredictionModule model
     region: brain area
     type: interaction type (h (human-human) or r (human-robot))
     """
-    model_params = pd. read_csv ("%s/results/prediction/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
+    model_params = pd. read_csv ("%s/results/PredictionModule/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
     predictors = model_params . loc [model_params["region"] == "%s"%region]["selected_predictors"]. iloc [0]
 
     return predictors
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     requiredNamed. add_argument ('--regions','-rg', help = "Numbers of brain areas to predict (see brain_areas.tsv)", nargs = '+', type=int)
     requiredNamed. add_argument ('--type','-t', help = ' conversation type (human or robot)')
     requiredNamed. add_argument ('--lag','-lag', default = 6, type=int)
-    requiredNamed. add_argument ('--pred_module_path','-pmp', help = "path of the prediction module")
+    requiredNamed. add_argument ('--pred_module_path','-pmp', help = "path of the PredictionModule module")
     requiredNamed. add_argument ('--input_dir','-in', help = "path of input directory")
 
     args = parser.parse_args()

@@ -58,8 +58,8 @@ SourceFormat = {
 # basic parameter kinds supported by the HPARM module
 SourceKind = {
     "WAVEFORM": "scalar samples (usually raw speech data)",
-    "LPC": "linear prediction coefficients",
-    "LPREFC": "linear prediction reflection coefficients",
+    "LPC": "linear PredictionModule coefficients",
+    "LPREFC": "linear PredictionModule reflection coefficients",
     "LPCEPSTRA": "LP derived cepstral coefficients",
     "LPDELCEP": "LP cepstra + delta coef (obsolete)",
     "IREFC": "LPREFC stored as 16bit (short) integers",

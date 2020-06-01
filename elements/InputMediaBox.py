@@ -16,7 +16,7 @@ class InputMediaBox(QWidget):
 
             btn = QPushButton('Choose file', self)
             btn.setStatusTip('Choose the input ' + filename + ' file.')
-            btn.clicked.connect(lambda: self.get_input_file())
+            btn.clicked.connect(lambda _, fname=filename, ftype=filetype : self.get_input_file(fname, ftype))
 
             text = QLabel()
             text.setText('File: ')
@@ -31,12 +31,11 @@ class InputMediaBox(QWidget):
 
             self.layout.addWidget(file_box)
 
-    def get_input_file(self):
-        for filename, filetype in self.buttons.items():
-            path = self.app.get_input_file(filename, filetype)
+    def get_input_file(self, fname, ftype):
+        path = self.app.get_input_file(fname, ftype)
+        if path is not None:
             _, path = ntpath.split(path)
-            if path is not None:
-                self.buttons_text[filename].setText("File: " + path)
-            else:
-                self.buttons_text[filename].setText("File: ")
+            self.buttons_text[fname].setText("File: " + path)
+        else:
+            self.buttons_text[fname].setText("File: ")
 

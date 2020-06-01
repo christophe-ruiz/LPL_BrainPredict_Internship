@@ -68,7 +68,7 @@ def train_model_area (subjects, target_column, convers, lag):
 	else : convers_type = "HR"
 
 	""" extract best model, and the best parameters founded based on fscore measure """
-	prediction_files = glob. glob ("results/prediction/*%s.tsv"%convers_type)
+	prediction_files = glob. glob ("results/PredictionModule/*%s.tsv"%convers_type)
 	best_score = 0
 
 	for filename in prediction_files:

@@ -107,10 +107,10 @@ def get_model_name (file):
 
 def process_multiple_subject (measures_mean, measures_std):
 
-	os. system ("rm results/prediction/*.pdf*")
+	os. system ("rm results/PredictionModule/*.pdf*")
 	for conv in ["HH", "HR"]:
 
-		evaluation_files = glob ("results/prediction/*%s.tsv*"%conv)
+		evaluation_files = glob ("results/PredictionModule/*%s.tsv*"%conv)
 		evaluation_files. sort ()
 		fig, ax = plt.subplots (nrows = len (measures_mean), ncols = 1, figsize=(8,8),  sharex=True)
 
@@ -156,7 +156,7 @@ def process_multiple_subject (measures_mean, measures_std):
 		#plt.gca().legend (loc='upper center', bbox_to_anchor = (0.5, 1.7), fancybox=True, shadow=True, ncol=5, fontsize = "x-small", markerscale = 0.2, labelspacing = 0.1, handletextpad=0.2, handlelength=1)
 		plt.legend (loc='upper center', bbox_to_anchor = (0.72, 0.93), ncol=3, bbox_transform = plt.gcf().transFigure)
 		plt.tight_layout()
-		plt. savefig ("results/prediction/results_%s.pdf"%conv)
+		plt. savefig ("results/PredictionModule/results_%s.pdf"%conv)
 		#plt.tight_layout()
 		plt. show ()
 
@@ -170,7 +170,7 @@ if __name__=='__main__':
 	#measures_std = ["fscore. std"]
 
 	# Group data by max of fscore to find the best set of predictive variables
-	csv_files = glob ("results/prediction/*.csv*")
+	csv_files = glob ("results/PredictionModule/*.csv*")
 
 	for csv_file in csv_files:
 		data = pd. read_csv (csv_file, sep = ';', header = 0, na_filter = False, index_col=False)

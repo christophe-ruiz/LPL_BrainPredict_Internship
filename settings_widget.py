@@ -26,7 +26,7 @@ class SettingsWidget(QWidget):
         file_box.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
         path_btn = QPushButton('Choose file', self)
-        path_btn.setStatusTip('Choose prediction file')
+        path_btn.setStatusTip('Choose PredictionModule file')
         path_btn.clicked.connect(self.app.get_path)
 
         file_layout = QVBoxLayout()

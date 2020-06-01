@@ -16,11 +16,11 @@ import sys
 #---------------------------------------------------#
 def get_predictors (model_name, region, type, path):
     """
-    model_name: name the prediction model
+    model_name: name the PredictionModule model
     region: brain area
     type: interaction type (h (human-human) or r (human-robot))
     """
-    model_params = pd. read_csv ("%s/results/prediction/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
+    model_params = pd. read_csv ("%s/results/PredictionModule/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
     predictors = model_params. loc [model_params["region"] == "%s"%region]["predictors_dict"]. iloc [0]
 
     return predictors
@@ -28,11 +28,11 @@ def get_predictors (model_name, region, type, path):
 #---------------------------------------------------#
 def get_predictors_dict (model_name, region, type, path):
     """
-    model_name: name the prediction model
+    model_name: name the PredictionModule model
     region: brain area
     type: interaction type (h (human-human) or r (human-robot))
     """
-    model_params = pd. read_csv ("%s/results/prediction/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
+    model_params = pd. read_csv ("%s/results/PredictionModule/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
     predictors = model_params. loc [model_params["region"] == "%s"%region]["selected_predictors"]. iloc [0]
 
     return predictors
@@ -41,7 +41,7 @@ def get_predictors_dict (model_name, region, type, path):
 def speech_features (pred_path, out_dir, language):
 	"""
 	generate speech features from audio files
-	pred_path: path of the prediction module
+	pred_path: path of the PredictionModule module
 	compute_features: logical, for computing the features or not (if they alreadu exists)
 	out_dir: output directory
 	"""
@@ -54,12 +54,12 @@ def speech_features (pred_path, out_dir, language):
 	elif language == "eng":
 		lang = "eng"
 
-	os. system ("python %s/tasks/utils/SPPAS/sppas/bin/normalize.py -r %s/tasks/utils/SPPAS/resources/vocab/eng.vocab -I %s  -l %s -e .TextGrid --quiet"%(pred_path, pred_path, audio_input, lang))
-	os. system ("python %s/tasks/utils/SPPAS/sppas/bin/phonetize.py  -I %s -l %s -e .TextGrid"%(pred_path, audio_input, lang))
-	os. system ("python %s/tasks/utils/SPPAS/sppas/bin/alignment.py  -I %s -l %s -e .TextGrid --aligner basic"%(pred_path, audio_input, lang))
+	os. system ("python %s/src/utils/SPPAS/sppas/bin/normalize.py -r %s/src/utils/SPPAS/resources/vocab/eng.vocab -I %s  -l %s -e .TextGrid --quiet"%(pred_path, pred_path, audio_input, lang))
+	os. system ("python %s/src/utils/SPPAS/sppas/bin/phonetize.py  -I %s -l %s -e .TextGrid"%(pred_path, audio_input, lang))
+	os. system ("python %s/src/utils/SPPAS/sppas/bin/alignment.py  -I %s -l %s -e .TextGrid --aligner basic"%(pred_path, audio_input, lang))
 
-	out = os. system ("python %s/tasks/generate_ts/speech_features.py %s %s/ -lg %s -n"%(pred_path, audio_input, audio_output, language))
-	out = os. system ("python %s/tasks/generate_ts/speech_features.py %s %s/ -l -lg %s -n"%(pred_path, audio_input, audio_output, language))
+	out = os. system ("python %s/src/generate_ts/speech_features.py %s %s/ -lg %s -n"%(pred_path, audio_input, audio_output, language))
+	out = os. system ("python %s/src/generate_ts/speech_features.py %s %s/ -l -lg %s -n"%(pred_path, audio_input, audio_output, language))
 
 	if out_dir[-1] != '/':
 		out_dir += '/'
@@ -89,9 +89,9 @@ def facial_features (pred_path, out_dir, openface_path):
     if out_dir[-1] != '/':
     	out_dir += '/'
 
-    os. system ("python %s/tasks/generate_ts/facial_action_units.py %s %s -op %s"%(pred_path, video_path, video_output, openface_path))
+    os. system ("python %s/src/generate_ts/facial_action_units.py %s %s -op %s"%(pred_path, video_path, video_output, openface_path))
     openface_features = glob.glob (video_output + "/" + video_path[:-4]. split ('/')[-1] + "/*.csv")[0]
-    os. system ("python %s/tasks/generate_ts/energy.py %s %s -faf %s -d"%(pred_path, video_path, energy_output, openface_features))
+    os. system ("python %s/src/generate_ts/energy.py %s %s -faf %s -d"%(pred_path, video_path, energy_output, openface_features))
 
     video_features = glob.glob (video_output + "/*.pkl")
     video_feats = pd. read_pickle (video_features[0])
@@ -119,17 +119,17 @@ def extra_features (pred_path, out_dir, type):
 
     if type == "eyetracking":
         gaze_coordinates_file = glob.glob ("%s/Inputs/eyetracking/*.pkl"%out_dir)[0]
-        out = os. system ("python %s/tasks/generate_ts/eyetracking.py %s %s -d -eye %s -faf %s -sv"%(pred_path, video_path, eyetracking_output, gaze_coordinates_file, openface_features))
+        out = os. system ("python %s/src/generate_ts/eyetracking.py %s %s -d -eye %s -faf %s -sv"%(pred_path, video_path, eyetracking_output, gaze_coordinates_file, openface_features))
 
     elif type == "emotions":
-        emotion_module_path = pred_path + "/tasks/utils/face_classification"
-        out = os. system ("python %s/tasks/generate_ts/generate_emotions_ts.py -d %s %s -fcp %s"%(pred_path, video_path, eyetracking_output, emotion_module_path))
+        emotion_module_path = pred_path + "/src/utils/face_classification"
+        out = os. system ("python %s/src/generate_ts/generate_emotions_ts.py -d %s %s -fcp %s"%(pred_path, video_path, eyetracking_output, emotion_module_path))
 
     elif type == "energy":
-        out = os. system ("python %s/tasks/generate_ts/energy.py %s %s -d -faf %s"%(pred_path, video_path, eyetracking_output, openface_features))
+        out = os. system ("python %s/src/generate_ts/energy.py %s %s -d -faf %s"%(pred_path, video_path, eyetracking_output, openface_features))
 
     elif type == "smiles":
-        out = os. system ("python %s/tasks/generate_ts/dlib_smiles.py -d %s %s"%(pred_path, video_path, eyetracking_output))
+        out = os. system ("python %s/src/generate_ts/dlib_smiles.py -d %s %s"%(pred_path, video_path, eyetracking_output))
 
 
     eyetracking_filename = glob.glob ("%s/*.pkl"%eyetracking_output)[0]
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     requiredNamed. add_argument ('--regions','-rg', help = "Numbers of brain areas to predict (see brain_areas.tsv)", nargs = '+', type=int)
     requiredNamed.add_argument("--language", "-lg", default = "fr", choices = ["fr", "eng"], help="Language.")
     requiredNamed. add_argument ('--openface_path','-ofp', help = "path of Openface", required=True)
-    requiredNamed. add_argument ('--pred_module_path','-pmp', help = "path of the prediction module", required=True)
+    requiredNamed. add_argument ('--pred_module_path','-pmp', help = "path of the PredictionModule module", required=True)
     requiredNamed. add_argument ('--input_dir','-in', help = "path of input directory", required=True)
     args = parser.parse_args()
 
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     out_dir =  "%s/outputs/generated_time_series/"%args.input_dir
 
     # GET REGIONS NAMES FOR THEIR CODES
-    brain_areas_desc = pd. read_csv ("brain_areas.tsv", sep = '\t', header = 0)
+    brain_areas_desc = pd. read_csv ("data/brain_areas.tsv", sep = '\t', header = 0)
 
     regions = []
     for num_region in args. regions:
