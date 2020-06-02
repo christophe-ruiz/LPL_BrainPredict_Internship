@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QPropertyAnimation, QParallelAnimationGroup, QAbstractAnimation
+from PyQt5.QtCore import Qt, QPropertyAnimation, QParallelAnimationGroup, QAbstractAnimation, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea, QToolButton, QSizePolicy, QVBoxLayout, QCheckBox
 
 
@@ -18,7 +18,8 @@ class CollapsibleSettingsBox(QWidget):
 
         self.content = QScrollArea()
         self.content.setFrameStyle(QFrame.Panel | QFrame.Plain)
-        self.content.setMinimumSize(0, 0)
+        self.content.setMinimumHeight(0)
+        self.content.setMaximumHeight(0)
         self.content.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
 
         self.toggle_animation = QParallelAnimationGroup(self)
@@ -38,12 +39,13 @@ class CollapsibleSettingsBox(QWidget):
         self.layout.addWidget(self.toggle)
         self.layout.addWidget(self.content)
 
-        self.setContentLayout(self.choice_list)
 
         self.choices = list()
         self.checked_choices = dict()
         self.set_list(self.data.get_areas()["Name"].tolist())
+        self.setContentLayout(self.choice_list)
 
+    @pyqtSlot()
     def action(self):
         checked = self.toggle.isChecked()
         self.toggle.setArrowType(Qt.DownArrow if not checked else Qt.RightArrow)
