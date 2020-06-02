@@ -57,6 +57,7 @@ class CollapsibleSettingsBox(QWidget):
         self.toggle_animation.start()
 
     def setContentLayout(self, layout):
+        layout.addStretch()
         lay = self.content.layout()
         del lay
         self.content.setLayout(layout)

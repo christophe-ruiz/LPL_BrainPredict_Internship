@@ -81,6 +81,7 @@ class SettingsWidget(QWidget):
         self.layout.addWidget(human_or_robot, 2, 0, alignment=Qt.AlignCenter)
 
     def select_conversation_type(self, conv_type):
+        #TODO: choices
         if conv_type == 'Human-Human':
             self.app.verbose('h')
         elif conv_type == 'Human-Robot':
