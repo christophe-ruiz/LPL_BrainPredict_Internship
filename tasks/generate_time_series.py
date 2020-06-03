@@ -139,7 +139,6 @@ def extra_features (pred_path, out_dir, type):
 
 #---------------------------------------------------#
 if __name__ == '__main__':
-    print('debut')
     parser = argparse. ArgumentParser ()
     requiredNamed = parser.add_argument_group('Required arguments')
     requiredNamed. add_argument ('--regions','-rg', help = "Numbers of brain areas to predict (see brain_areas.tsv)", nargs = '+', type=int)
@@ -193,4 +192,3 @@ if __name__ == '__main__':
                                  ), axis = 1)
     columns = list (speech_left. columns) +  list (speech. columns [1:]) + list (eyetracking. columns [1:]) + list (emotions. columns [1:]) + list (energy. columns [1:]) + list (smiles. columns [1:])
     pd. DataFrame (all_data, columns = columns). to_csv (out_dir + "all_features.csv", sep = ';', index = False)
-    print('fin')

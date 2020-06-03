@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QObject
+from tasks.signals import Signals
 import pandas as pd
 import numpy as np
 import os
@@ -6,8 +7,11 @@ import glob
 
 
 class GenerateTimeSeries(QObject):
-    def __init__(self, regions, openface_path, pred_module_path, input_dir, language="fr"):
+
+    def __init__(self, regions, openface_path, pred_module_path, input_dir, video_path, language="fr"):
         super(GenerateTimeSeries, self).__init__()
+        self.signals = Signals()
+        self.video_path = video_path
         self.openface_path = openface_path
         self.language = language
         self.pred_module_path = pred_module_path[:-1] if pred_module_path[-1] == '/' else pred_module_path
@@ -15,15 +19,15 @@ class GenerateTimeSeries(QObject):
         self.out_dir = "%s/outputs/generated_time_series/" % self.input_dir
         # GET REGIONS NAMES FOR THEIR CODES
         self.brain_areas_desc = pd.read_csv("data/brain_areas.tsv", sep='\t', header=0)
-
         self.regions = []
         for num_region in regions:
             self.regions.append(
                 self.brain_areas_desc
                     .loc[self.brain_areas_desc["Code"] == num_region, "Name"]
-                    .values[0]
+                    # .values[0]
             )
 
+    def start(self):
         """ CREATE OUTPUT DIRECTORIES OF THE GENERATED TIME SERIES """
         for dirct in ["%s/outputs" % self.input_dir, self.out_dir,
                       "%s/outputs/generated_time_series/speech" % self.input_dir,
@@ -34,27 +38,37 @@ class GenerateTimeSeries(QObject):
                       "%s/outputs/generated_time_series/smiles" % self.input_dir
                       ]:
             if not os.path.exists(dirct):
+                self.signals.msg.emit(("Creating directory: ", dirct))
                 os.makedirs(dirct)
 
         """ GENERATE MULTIMODAL TIME SERIES FROM RAW SIGNALS """
-        self.speech_left, self.speech = self.speech_features()
-        self.video = self.facial_features(self.pred_module_path, self.input_dir, self.openface_path)
+        speech_left, speech = self.speech_features()
+        self.signals.msg.emit("Speech features created.")
+        video = self.facial_features(self.pred_module_path, self.input_dir, self.openface_path)
+        self.signals.msg.emit("Facial features created.")
         # Extract other facial features: emotions, energy based features ...
+        self.signals.msg.emit("Creating extra features.")
         eyetracking = self.extra_features("eyetracking")
         emotions = self.extra_features("emotions")
         energy = self.extra_features("energy")
         smiles = self.extra_features("smiles")
+        self.signals.msg.emit("Extra features created.")
 
         """ CONCATENATE AND SAVE MULTIMODAL DATA """
-        all_data = np.concatenate((self.speech_left.values,
-                                   self.speech.values[:, 1:],
+        self.signals.msg.emit("Concatenating data.")
+        all_data = np.concatenate((speech_left.values,
+                                   speech.values[:, 1:],
                                    eyetracking.values[:, 1:],
                                    emotions.values[:, 1:],
                                    energy.values[:, 1:],
                                    smiles.values[:, 1:]
                                    ), axis=1)
-        columns = list(self.speech_left.columns) + list(self.speech.columns[1:]) + list(eyetracking.columns[1:]) + list(
-            emotions.columns[1:]) + list(energy.columns[1:]) + list(smiles.columns[1:])
+        columns = list(speech_left.columns) +\
+                  list(speech.columns[1:]) +\
+                  list(eyetracking.columns[1:]) +\
+                  list(emotions.columns[1:]) +\
+                  list(energy.columns[1:]) +\
+                  list(smiles.columns[1:])
         pd.DataFrame(all_data, columns=columns).to_csv(self.out_dir + "all_features.csv", sep=';', index=False)
 
     def speech_features(self):
@@ -65,7 +79,7 @@ class GenerateTimeSeries(QObject):
         out_dir: output directory
         """
 
-        audio_input = "%s/Inputs/speech" % self.out_dir
+        audio_input = "%s/inputs/speech" % self.out_dir
         audio_output = "%s/outputs/generated_time_series/speech" % self.out_dir
 
         lang = None
@@ -109,9 +123,8 @@ class GenerateTimeSeries(QObject):
     def facial_features(self, pred_path, out_dir, openface_path):
         """ facial features  """
 
-        # video_input = "%s/Inputs/video"%out_dir
         video_output = "%s/outputs/generated_time_series/video/" % out_dir
-        video_path = glob.glob("%s/Inputs/video/*.avi" % out_dir)
+        video_path = self.video_path
 
         energy_output = "%s/outputs/generated_time_series/video/" % out_dir
 
@@ -143,7 +156,7 @@ class GenerateTimeSeries(QObject):
 
         video_output = "%s/outputs/generated_time_series/video" % self.out_dir
         eyetracking_output = "%s/outputs/generated_time_series/%s" % (self.out_dir, type)
-        video_path = glob.glob("%s/Inputs/video/*.avi" % self.out_dir)
+        video_path = self.video_path
         if len(video_path) == 0:
             print("Error: there is no input video!")
             exit(1)
@@ -157,9 +170,9 @@ class GenerateTimeSeries(QObject):
         openface_features = glob.glob(video_output + "/" + video_path[:-4].split('/')[-1] + "/*.csv")[0]
 
         if type == "eyetracking":
-            gaze_coordinates_file = glob.glob("%s/Inputs/eyetracking/*.pkl" % self.out_dir)[0]
+            gaze_coordinates_file = glob.glob("%s/inputs/eyetracking/*.pkl" % self.out_dir)[0]
             out = os.system("python %s/src/generate_ts/eyetracking.py %s %s -d -eye %s -faf %s -sv" % (
-            self.pred_module_path, video_path, eyetracking_output, gaze_coordinates_file, openface_features))
+                self.pred_module_path, video_path, eyetracking_output, gaze_coordinates_file, openface_features))
 
         elif type == "emotions":
             emotion_module_path = self.pred_module_path + "/src/utils/face_classification"

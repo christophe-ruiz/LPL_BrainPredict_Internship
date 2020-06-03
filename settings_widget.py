@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroup
     QSlider, QGridLayout, QComboBox
 from elements.CollapsibleSettingsBox import CollapsibleSettingsBox
 from elements.InputMediaBox import InputMediaBox
+from tasks.task_thread import GenerateTimeSeriesThread
 import subprocess
 
 
@@ -66,8 +67,8 @@ class SettingsWidget(QWidget):
         region_selector = CollapsibleSettingsBox(self.app.get_data())
 
         kw = dict(
-            audio="Wav file (*.wav)",
-            video="Video file (*.avi, *.mp4)"
+            audio="Audio file (*.mp3)",
+            video="Video file (*.avi)"
         )
         input_media = InputMediaBox(self.app, **kw)
 
@@ -89,8 +90,21 @@ class SettingsWidget(QWidget):
 
     def generate_time_series(self):
         print('click')
-        subprocess.call("python tasks/generate_time_series.py -rg 1 2 3 4 5 6 -lg fr -pmp PredictionModule -in Demo "
-                        "-ofp ../../Téléchargements/OpenFace-master".split())
+        # gts_th est un thread destiné à créer les séries temporelles.
+        gts_th = GenerateTimeSeriesThread("123456",
+                                          "/home/chris/Téléchargements/OpenFace-master",
+                                          "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/PredictionModule",
+                                          "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/inputs",
+                                          self.app.paths["video"],
+                                          "fr")
+        # Les messages reçus par le signal "msg" seront traités par verbose pour les afficher.
+        gts_th.signals.msg.connect(lambda msg: self.app.verbose(*msg))
+        # Une fois le travail fini, on l'écrit dans la barre de statut
+        gts_th.signals.finished.connect(lambda: self.app.verbose("Time series successfully generated."))
+        # On demande à threadpool de lancer le thread.
+        self.app.threadpool.start(gts_th)
+        # subprocess.call("python tasks/generate_time_series.py -rg 1 2 3 4 5 6 -lg fr -pmp PredictionModule -in Demo "
+        #                 "-ofp ../../Téléchargements/OpenFace-master".split())
 
 
 class VideoPlayer(QWidget):
