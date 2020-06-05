@@ -18,7 +18,8 @@ class SettingsWidget(QWidget):
         self.setLayout(self.layout)
         self.app.verbose('Setting input bar...')
         settings_box = QGroupBox("Compute data as...")
-        settings_box.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        settings_box.setAutoFillBackground(True)
+        settings_box.setStyleSheet("background-color: white")
         bar_layout = QHBoxLayout()
         settings_box.setLayout(bar_layout)
 
@@ -67,19 +68,19 @@ class SettingsWidget(QWidget):
         region_selector = CollapsibleSettingsBox(self.app.get_data())
 
         kw = dict(
-            audio="Audio file (*.mp3)",
+            audio="Audio file (*.mp3, *.wav)",
             video="Video file (*.avi)"
         )
         input_media = InputMediaBox(self.app, **kw)
 
         self.app.verbose('Adding widget to settings tab...')
-        self.layout.addWidget(file_box, 0, 1, alignment=Qt.AlignCenter)
-        self.layout.addWidget(region_selector, 1, 0, alignment=Qt.AlignCenter)
-        self.layout.addWidget(settings_box, 1, 1, alignment=Qt.AlignCenter)
-        self.layout.addWidget(compute, 2, 1, alignment=Qt.AlignCenter)
-        self.layout.addWidget(test_generate, 3, 1, alignment=Qt.AlignCenter)
-        self.layout.addWidget(input_media, 0, 0, alignment=Qt.AlignCenter)
-        self.layout.addWidget(human_or_robot, 2, 0, alignment=Qt.AlignCenter)
+        self.layout.addWidget(region_selector, 0, 0, 3, 1, Qt.AlignCenter)
+        self.layout.addWidget(input_media, 0, 1)
+        self.layout.addWidget(file_box, 1, 1)
+        self.layout.addWidget(settings_box, 2, 1)
+        self.layout.addWidget(compute, 3, 1)
+        self.layout.addWidget(test_generate, 4, 1)
+        self.layout.addWidget(human_or_robot, 2, 0)
 
     def select_conversation_type(self, conv_type):
         #TODO: choices

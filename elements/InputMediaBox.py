@@ -2,17 +2,26 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import ntpath
 
+"""
+Widget contenant les boutons de sélection des fichiers audio et vidéo d'entrée.
+"""
+
 
 class InputMediaBox(QWidget):
     def __init__(self, app, **kwargs):
-        self.app = app
         super(InputMediaBox, self).__init__()
+        self.setAutoFillBackground(True)
+        self.setStyleSheet("background-color: white")
+        self.app = app
         self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.buttons = dict()
         self.buttons_text = dict()
         for filename, filetype in kwargs.items():
             file_box = QGroupBox(filename.capitalize() + " file")
-            file_box.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+            file_box.setAutoFillBackground(True)
+            file_box.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+            file_box.setStyleSheet("background-color: white")
 
             btn = QPushButton('Choose file', self)
             btn.setStatusTip('Choose the input ' + filename + ' file.')
