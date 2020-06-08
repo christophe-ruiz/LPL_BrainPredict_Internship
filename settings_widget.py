@@ -95,7 +95,7 @@ class SettingsWidget(QWidget):
         gts_th = GenerateTimeSeriesThread("123456",
                                           "/home/chris/Téléchargements/OpenFace-master",
                                           "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/PredictionModule",
-                                          "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/inputs",
+                                          "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/",
                                           self.app.paths["video"],
                                           "fr")
         # Les messages reçus par le signal "msg" seront traités par verbose pour les afficher.
@@ -104,8 +104,6 @@ class SettingsWidget(QWidget):
         gts_th.signals.finished.connect(lambda: self.app.verbose("Time series successfully generated."))
         # On demande à threadpool de lancer le thread.
         self.app.threadpool.start(gts_th)
-        # subprocess.call("python tasks/generate_time_series.py -rg 1 2 3 4 5 6 -lg fr -pmp PredictionModule -in Demo "
-        #                 "-ofp ../../Téléchargements/OpenFace-master".split())
 
 
 class VideoPlayer(QWidget):

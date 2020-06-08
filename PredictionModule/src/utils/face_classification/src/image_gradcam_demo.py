@@ -47,7 +47,7 @@ gray_image = np.squeeze(gray_image)
 gray_image = gray_image.astype('uint8')
 faces = detect_faces(face_detection, gray_image)
 
-# start PredictionModule for every image
+# start prediction for every image
 for face_coordinates in faces:
 
     x1, x2, y1, y2 = apply_offsets(face_coordinates, offsets)
@@ -65,7 +65,7 @@ for face_coordinates in faces:
     gray_face = np.expand_dims(gray_face, 0)
     gray_face = np.expand_dims(gray_face, -1)
 
-    # PredictionModule
+    # prediction
     predicted_class = np.argmax(model.predict(gray_face))
     label_text = labels[predicted_class]
 

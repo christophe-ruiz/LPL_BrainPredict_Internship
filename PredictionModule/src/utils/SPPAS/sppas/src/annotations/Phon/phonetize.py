@@ -62,7 +62,7 @@ class sppasDictPhonetizer(object):
     :copyright:    Copyright (C) 2011-2018  Brigitte Bigi
 
     Grapheme-to-phoneme conversion is a complex task, for which a number of
-    diverse solutions have been proposed. It is a structure PredictionModule task;
+    diverse solutions have been proposed. It is a structure prediction task;
     both the input and output are structured, consisting of sequences of
     letters and phonemes, respectively.
 

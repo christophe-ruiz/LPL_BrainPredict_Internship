@@ -15,7 +15,7 @@ class GenerateTimeSeries(QObject):
         self.openface_path = openface_path
         self.language = language
         self.pred_module_path = pred_module_path[:-1] if pred_module_path[-1] == '/' else pred_module_path
-        self.input_dir = input_dir
+        self.input_dir = input_dir[:-1] if input_dir[-1] == '/' else input_dir
         self.out_dir = "%s/outputs/generated_time_series/" % self.input_dir
         # GET REGIONS NAMES FOR THEIR CODES
         self.brain_areas_desc = pd.read_csv("data/brain_areas.tsv", sep='\t', header=0)
@@ -79,8 +79,8 @@ class GenerateTimeSeries(QObject):
         out_dir: output directory
         """
 
-        audio_input = "%s/inputs/speech" % self.out_dir
-        audio_output = "%s/outputs/generated_time_series/speech" % self.out_dir
+        audio_input = self.input_dir + "/inputs/speech"
+        audio_output = self.out_dir + "speech"
 
         lang = None
         if self.language == "fr":
@@ -154,8 +154,8 @@ class GenerateTimeSeries(QObject):
     def extra_features(self, type):
         """ eyetracking data """
 
-        video_output = "%s/outputs/generated_time_series/video" % self.out_dir
-        eyetracking_output = "%s/outputs/generated_time_series/%s" % (self.out_dir, type)
+        video_output = self.out_dir + "video"
+        eyetracking_output = self.out_dir + type
         video_path = self.video_path
         if len(video_path) == 0:
             print("Error: there is no input video!")
@@ -170,7 +170,7 @@ class GenerateTimeSeries(QObject):
         openface_features = glob.glob(video_output + "/" + video_path[:-4].split('/')[-1] + "/*.csv")[0]
 
         if type == "eyetracking":
-            gaze_coordinates_file = glob.glob("%s/inputs/eyetracking/*.pkl" % self.out_dir)[0]
+            gaze_coordinates_file = glob.glob("%s/inputs/eyetracking/*.pkl" % self.input_dir)[0]
             out = os.system("python %s/src/generate_ts/eyetracking.py %s %s -d -eye %s -faf %s -sv" % (
                 self.pred_module_path, video_path, eyetracking_output, gaze_coordinates_file, openface_features))
 
