@@ -68,7 +68,7 @@ class SettingsWidget(QWidget):
         region_selector = CollapsibleSettingsBox(self.app.get_data())
 
         kw = dict(
-            audio="Audio file (*.mp3, *.wav)",
+            audio="Audio directory (dir)",
             video="Video file (*.avi)"
         )
         input_media = InputMediaBox(self.app, **kw)
@@ -93,11 +93,12 @@ class SettingsWidget(QWidget):
         print('click')
         # gts_th est un thread destiné à créer les séries temporelles.
         gts_th = GenerateTimeSeriesThread("123456",
-                                          "/home/chris/Téléchargements/OpenFace-master",
+                                          "/home/chris/OpenFace",
                                           "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/PredictionModule",
                                           "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/",
                                           self.app.paths["video"],
-                                          "fr")
+                                          self.app.paths["audio"]
+                                          )
         # Les messages reçus par le signal "msg" seront traités par verbose pour les afficher.
         gts_th.signals.msg.connect(lambda msg: self.app.verbose(*msg))
         # Une fois le travail fini, on l'écrit dans la barre de statut

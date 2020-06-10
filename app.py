@@ -127,9 +127,22 @@ class App(QMainWindow):
     """
     Permet de récupérer les chemins des fichiers d'entrée.
     """
-    def get_input_file(self, filename, filetype):
-        path, _ = QFileDialog.getOpenFileName(self, "Open " + filename + " file", filter=filetype)
-        self.verbose('Selected ' + filename + ' file :', path)
+    def get_input_path(self, filename, filetype):
+        if filetype[-5:] == '(dir)':
+            path = QFileDialog.getExistingDirectory(
+                self,
+                "Open " + filename + " directory",
+                "/home",
+                QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+            )
+            self.verbose('Selected ' + filename + ' file :', path)
+        else:
+            path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Open " + filename + " file",
+                filter=filetype
+            )
+            self.verbose('Selected ' + filename + ' file :', path)
         if path != "":
             self.paths[filename] = path
             return path

@@ -3,7 +3,7 @@ import numpy as np
 #from textblob import Blobber
 #from textblob_fr import PatternTagger, PatternAnalyzer
 import matplotlib. pyplot as plt
-from pattern. fr import sentiment
+from pattern.fr import sentiment
 
 
 #-----------------------------------------------------------------------------

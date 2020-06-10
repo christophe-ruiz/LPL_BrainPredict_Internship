@@ -8,10 +8,11 @@ import glob
 
 class GenerateTimeSeries(QObject):
 
-    def __init__(self, regions, openface_path, pred_module_path, input_dir, video_path, language="fr"):
+    def __init__(self, regions, openface_path, pred_module_path, input_dir, video_path, audio_input, language="fr"):
         super(GenerateTimeSeries, self).__init__()
         self.signals = Signals()
         self.video_path = video_path
+        self.audio_input = audio_input
         self.openface_path = openface_path
         self.language = language
         self.pred_module_path = pred_module_path[:-1] if pred_module_path[-1] == '/' else pred_module_path
@@ -43,19 +44,19 @@ class GenerateTimeSeries(QObject):
 
         """ GENERATE MULTIMODAL TIME SERIES FROM RAW SIGNALS """
         speech_left, speech = self.speech_features()
-        self.signals.msg.emit("Speech features created.")
+        self.signals.msg.emit(("Speech features created.",))
         video = self.facial_features(self.pred_module_path, self.input_dir, self.openface_path)
-        self.signals.msg.emit("Facial features created.")
+        self.signals.msg.emit(("Facial features created.",))
         # Extract other facial features: emotions, energy based features ...
-        self.signals.msg.emit("Creating extra features.")
+        self.signals.msg.emit(("Creating extra features.",))
         eyetracking = self.extra_features("eyetracking")
         emotions = self.extra_features("emotions")
         energy = self.extra_features("energy")
         smiles = self.extra_features("smiles")
-        self.signals.msg.emit("Extra features created.")
+        self.signals.msg.emit(("Extra features created.",))
 
         """ CONCATENATE AND SAVE MULTIMODAL DATA """
-        self.signals.msg.emit("Concatenating data.")
+        self.signals.msg.emit(("Concatenating data.",))
         all_data = np.concatenate((speech_left.values,
                                    speech.values[:, 1:],
                                    eyetracking.values[:, 1:],
@@ -79,7 +80,6 @@ class GenerateTimeSeries(QObject):
         out_dir: output directory
         """
 
-        audio_input = self.input_dir + "/inputs/speech"
         audio_output = self.out_dir + "speech"
 
         lang = None
@@ -90,27 +90,27 @@ class GenerateTimeSeries(QObject):
 
         os.system(
             "python %s/src/utils/SPPAS/sppas/bin/normalize.py -r %s/src/utils/SPPAS/resources/vocab/eng.vocab -I %s  -l %s -e .TextGrid --quiet" % (
-                self.pred_module_path, self.pred_module_path, audio_input, lang)
+                self.pred_module_path, self.pred_module_path, self.audio_input, lang)
         )
         os.system(
             "python %s/src/utils/SPPAS/sppas/bin/phonetize.py  -I %s -l %s -e .TextGrid" % (
-                self.pred_module_path, audio_input, lang
+                self.pred_module_path, self.audio_input, lang
             )
         )
         os.system(
             "python %s/src/utils/SPPAS/sppas/bin/alignment.py  -I %s -l %s -e .TextGrid --aligner basic" % (
-                self.pred_module_path, audio_input, lang
+                self.pred_module_path, self.audio_input, lang
             )
         )
 
         out = os.system(
             "python %s/src/generate_ts/speech_features.py %s %s/ -lg %s -n" % (
-                self.pred_module_path, audio_input, audio_output, self.language
+                self.pred_module_path, self.audio_input, audio_output, self.language
             )
         )
         out = os.system(
             "python %s/src/generate_ts/speech_features.py %s %s/ -l -lg %s -n" % (
-                self.pred_module_path, audio_input, audio_output, self.language
+                self.pred_module_path, self.audio_input, audio_output, self.language
             )
         )
 
@@ -123,16 +123,17 @@ class GenerateTimeSeries(QObject):
     def facial_features(self, pred_path, out_dir, openface_path):
         """ facial features  """
 
-        video_output = "%s/outputs/generated_time_series/video/" % out_dir
+        video_output = self.out_dir + "video/"
         video_path = self.video_path
+        print('video path before transofmration: ', video_path)
 
         energy_output = "%s/outputs/generated_time_series/video/" % out_dir
 
         if len(video_path) == 0:
             print("Error: there no input video!")
             exit(1)
-        else:
-            video_path = video_path[0]
+        # else:
+        #     video_path = video_path[0]
 
         video_name = video_path.split('/')[-1].split('.')[0]
         # openface_csv_file = "%s/outputs/generated_time_series/video/%/%.csv"%(out_dir,video_name)
@@ -167,7 +168,7 @@ class GenerateTimeSeries(QObject):
         if self.out_dir[-1] != '/':
             self.out_dir += '/'
 
-        openface_features = glob.glob(video_output + "/" + video_path[:-4].split('/')[-1] + "/*.csv")[0]
+        openface_features = glob.glob(video_output + "/" + video_path[:-4].split('/')[-1] + "/video_interlocutor/*.csv")[0]
 
         if type == "eyetracking":
             gaze_coordinates_file = glob.glob("%s/inputs/eyetracking/*.pkl" % self.input_dir)[0]

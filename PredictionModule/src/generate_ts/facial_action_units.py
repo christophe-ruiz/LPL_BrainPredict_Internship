@@ -60,7 +60,11 @@ if __name__ == '__main__':
 		index. append (1.205 + index [i - 1])
 
 	# read csv file
-	openface_data = pd. read_csv ("%s/%s.csv"%(out_file, conversation_name), sep=',', header=0)
+	path = out_file + '/' + conversation_name + '.csv'
+	print('out file:', out_file)
+	print('conv name:', conversation_name)
+	print(path)
+	openface_data = pd. read_csv (path, sep=',', header=0)
 
 	# Keeping just  some features : gaze, head pose, and facial unit actions
 	movements_cols = [" timestamp", " gaze_angle_x", " gaze_angle_y", " pose_Tx", " pose_Ty", " pose_Tz", " pose_Rx", " pose_Ry", " pose_Rz"]
