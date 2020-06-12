@@ -71,6 +71,7 @@ class GenerateTimeSeries(QObject):
                   list(energy.columns[1:]) +\
                   list(smiles.columns[1:])
         pd.DataFrame(all_data, columns=columns).to_csv(self.out_dir + "all_features.csv", sep=';', index=False)
+        self.signals.finished.emit()
 
     def speech_features(self):
         """
@@ -161,14 +162,14 @@ class GenerateTimeSeries(QObject):
         if len(video_path) == 0:
             print("Error: there is no input video!")
             exit(1)
-        else:
-            video_path = video_path[0]
+        # else:
+        #     video_path = video_path[0]
 
         # print ("Processing eyetracking data")
         if self.out_dir[-1] != '/':
             self.out_dir += '/'
 
-        openface_features = glob.glob(video_output + "/" + video_path[:-4].split('/')[-1] + "/video_interlocutor/*.csv")[0]
+        openface_features = glob.glob(video_output + "/" + video_path[:-4].split('/')[-1] + "/*.csv")[0]
 
         if type == "eyetracking":
             gaze_coordinates_file = glob.glob("%s/inputs/eyetracking/*.pkl" % self.input_dir)[0]
@@ -197,6 +198,7 @@ class GenerateTimeSeries(QObject):
                 )
             )
 
+        print("%s/*.pkl" % eyetracking_output)
         eyetracking_filename = glob.glob("%s/*.pkl" % eyetracking_output)[0]
         eyetracking = pd.read_pickle(eyetracking_filename)
 

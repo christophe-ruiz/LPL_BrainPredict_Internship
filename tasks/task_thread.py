@@ -2,6 +2,7 @@ from PyQt5.QtCore import QRunnable, pyqtSlot
 from tasks.model import Modeling
 from tasks.graph import Graph
 from tasks.generate_ts import GenerateTimeSeries
+from tasks.predict import Predict
 from tasks.signals import Signals
 
 # TODO: Refactoriser pour n'avoir qu'une classe.
@@ -57,13 +58,13 @@ class GraphThread(QRunnable):
 
 class GenerateTimeSeriesThread(QRunnable):
     def __init__(self, regions, openface_path, pred_module_path, input_dir, video_path, language="fr"):
+        super(GenerateTimeSeriesThread, self).__init__()
         self.regions = regions
         self.openface_path = openface_path
         self.pred_module_path = pred_module_path
         self.input_dir = input_dir
         self.video_path = video_path
         self.language = language
-        super(GenerateTimeSeriesThread, self).__init__()
         self.signals = Signals()
 
     """
@@ -84,3 +85,32 @@ class GenerateTimeSeriesThread(QRunnable):
         g.signals.msg.connect(self.repeat_msg)
         g.signals.finished.connect(lambda: self.signals.finished.emit())
         g.start()
+
+
+class PredictThread(QRunnable):
+    def __init__(self, regions, type, lag, pred_module_path, input_dir):
+        super(PredictThread, self).__init__()
+        self.regions = regions
+        self.type = type
+        self.lag = lag
+        self.pred_module_path = pred_module_path
+        self.input_dir = input_dir
+        self.signals = Signals()
+
+    """
+    Renvoie les messages du signal msg au parent.
+    """
+
+    def repeat_msg(self, msg):
+        self.signals.msg.emit(msg)
+
+    @pyqtSlot()
+    def run(self) -> None:
+        p = Predict(self.regions,
+                               self.type,
+                               self.lag,
+                               self.pred_module_path,
+                               self.input_dir)
+        p.signals.msg.connect(self.repeat_msg)
+        p.signals.finished.connect(lambda: self.signals.finished.emit())
+        p.start()

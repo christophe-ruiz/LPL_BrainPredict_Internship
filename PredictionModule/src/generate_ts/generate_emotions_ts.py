@@ -22,13 +22,13 @@ maindir = os.path.dirname(parentdir)
 
 sys.path.insert(3,maindir)
 
-from src.utils.face_classification.src.utils.datasets import get_labels
-from src.utils.face_classification.src.utils.inference import draw_text
-from src.utils.face_classification.src.utils.inference import draw_bounding_box
-from src.utils.face_classification.src.utils.inference import apply_offsets
-from src.utils.face_classification.src.utils.preprocessor import preprocess_input
+from PredictionModule.src.utils.face_classification.src.utils.datasets import get_labels
+from PredictionModule.src.utils.face_classification.src.utils.inference import draw_text
+from PredictionModule.src.utils.face_classification.src.utils.inference import draw_bounding_box
+from PredictionModule.src.utils.face_classification.src.utils.inference import apply_offsets
+from PredictionModule.src.utils.face_classification.src.utils.preprocessor import preprocess_input
 
-import utils.tools as ts
+import PredictionModule.src.generate_ts.utils.tools as ts
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 colors = ["black", "darkblue", "brown", "red", "slategrey", "darkorange", "grey","blue", "indigo", "darkgreen"]
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 	face_cascade = cv2.CascadeClassifier(detection_model_path)
 
 	if args. out_dir == 'None':
-	    usage ()
+	    #usage ()
 	    exit ()
 
 	if args. out_dir[-1] != '/':

@@ -27,8 +27,8 @@ if __name__ == '__main__':
 
 	args = parser.parse_args()
 
-	face_cascade = cv2.CascadeClassifier("/home/youssef/opencv-4.1.2/data/haarcascades/haarcascade_frontalface_default.xml")
-	smile_cascade = cv2.CascadeClassifier('/home/youssef/opencv-4.1.2/data/haarcascades/haarcascade_smile.xml')
+	face_cascade = cv2.CascadeClassifier("/home/chris/opencv-4.1.0/data/haarcascades/haarcascade_frontalface_default.xml")
+	smile_cascade = cv2.CascadeClassifier('/home/chris/opencv-4.1.0/data/haarcascades/haarcascade_smile.xml')
 
 	if args. out_dir == 'None':
 	    usage ()

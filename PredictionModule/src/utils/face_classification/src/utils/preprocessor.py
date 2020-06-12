@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.misc import imread, imresize
-#from scipy.misc import imresize
+# from scipy.misc import imresize
 #from scipy.misc.pilutil import imread, imresize
 
 

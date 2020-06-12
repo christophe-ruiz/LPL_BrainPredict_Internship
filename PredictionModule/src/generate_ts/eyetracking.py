@@ -128,7 +128,7 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	if args. out_dir == 'None':
-	    usage ()
+	    # usage ()
 	    exit ()
 
 	if args. out_dir[-1] != '/':
@@ -136,14 +136,15 @@ if __name__ == '__main__':
 
 	# Input directory and Output file
 	subject = args. video.split ('/')[-2]
-
+	print('before if')
 	if args. demo:
+		print('in if')
 		eye_tracking_file = args. eyetracking
 		openface_file = args. facial_features
 		conversation_name = "facial_features_eyetracking"
 	else:
-		eye_tracking_file = "time_series/%s/gaze_coordinates_ts/%s.pkl"%(subject, conversation_name)
 		conversation_name = args. video.split ('/')[-1]. split ('.')[0]
+		eye_tracking_file = "time_series/%s/gaze_coordinates_ts/%s.pkl"%(subject, conversation_name)
 		openface_file = "time_series/%s/facial_features_ts/%s/%s.csv"%(subject, conversation_name, conversation_name)
 
 	out_file = args. out_dir + conversation_name
@@ -165,7 +166,8 @@ if __name__ == '__main__':
 	# create output video if the save argument is specified
 	if args. save:
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
-		out = cv2.VideoWriter (args.out_dir + "/" + conversation_name + ".avi", fourcc, fps, (frame_width, frame_height))
+		print("output video: ", args.out_dir + conversation_name + ".avi")
+		out = cv2.VideoWriter (args.out_dir + conversation_name + ".avi", fourcc, fps, (frame_width, frame_height))
 
 	# If demo, we use eyetracking and openface csv files as input,
 	# else, we find them automatically based on the name of the video
