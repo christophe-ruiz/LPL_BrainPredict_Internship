@@ -32,11 +32,13 @@ class Predict(QObject):
         brain_areas_desc = pd.read_csv("data/brain_areas.tsv", sep='\t', header=0)
         self.regions = []
         for num_region in regions:
-            regions.append(brain_areas_desc.loc[brain_areas_desc["Code"] == num_region, "Name"].values[0])
+            self.regions.append(brain_areas_desc.loc[brain_areas_desc["Code"] == int(num_region), "Name"].values[0])
 
         if self.pred_module_path[-1] == '/':
             self.pred_module_path = self.pred_module_path[:-1]
 
+
+    def start(self):
         out_dir = "%s/outputs/generated_time_series/" % self.input_dir
 
         # WRIGHT MULTIMODAL TIME SERIES TO CSV FILE
@@ -66,7 +68,7 @@ class Predict(QObject):
         predictors_variables = {}
         nb_r = 1
 
-        for region in regions:
+        for region in self.regions:
             print(region, '\n', 18 * '-')
             predictors_data = pd.DataFrame()
             predictors_data.columns = []
@@ -84,6 +86,9 @@ class Predict(QObject):
             # print ("Predictors time series: ", predictors, "\n -------------")
 
             predictors_data = all_data.loc[:, predictors].values
+            print(predictors_data)
+            print(predictors_data.shape)
+            print(model)
 
             pred = model.predict(predictors_data)
 
@@ -93,7 +98,7 @@ class Predict(QObject):
             predictors_variables[region] = self.get_features_from_lagged(predictors)
             # predictors_variables [region] = literal_eval (get_predictors (model_name, region, args. type, args.pred_module_path))
             # print (region, "\n", 18 * '-')
-            print(int(100 * float(nb_r) / len(regions)))
+            print(int(100 * float(nb_r) / len(self.regions)))
             nb_r += 1
         preds_var = pd.DataFrame()
 
@@ -160,7 +165,7 @@ class Predict(QObject):
         region: brain area
         type: interaction type (h (human-human) or r (human-robot))
         """
-        model_params = pd. read_csv ("%s/results/PredictionModule/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
+        model_params = pd. read_csv ("%s/results/models_params/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
         predictors = model_params . loc [model_params["region"] == "%s"%region]["selected_predictors"]. iloc [0]
 
         return predictors

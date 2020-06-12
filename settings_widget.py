@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroup
     QSlider, QGridLayout, QComboBox
 from elements.CollapsibleSettingsBox import CollapsibleSettingsBox
 from elements.InputMediaBox import InputMediaBox
-from tasks.task_thread import GenerateTimeSeriesThread
+from tasks.task_thread import GenerateTimeSeriesThread, PredictThread
 import subprocess
 
 
@@ -13,7 +13,7 @@ class SettingsWidget(QWidget):
     def __init__(self, app):
         super(SettingsWidget, self).__init__()
         self.app = app
-
+        self.conversation_type = 'h'
         self.layout = QGridLayout()
         self.setLayout(self.layout)
         self.app.verbose('Setting input bar...')
@@ -62,8 +62,11 @@ class SettingsWidget(QWidget):
         compute = QPushButton("COMPUTE")
         compute.clicked.connect(lambda: self.app.do_actions())
 
-        test_generate = QPushButton("TEST TIME SERIES GENERATION")
-        test_generate.clicked.connect(lambda: self.generate_time_series())
+        generate = QPushButton("GENERATE TIME SERIES")
+        generate.clicked.connect(lambda: self.generate_time_series())
+
+        test_predict = QPushButton("TEST PREDICT")
+        test_predict.clicked.connect(lambda: self.predict())
 
         region_selector = CollapsibleSettingsBox(self.app.get_data())
 
@@ -79,18 +82,18 @@ class SettingsWidget(QWidget):
         self.layout.addWidget(file_box, 1, 1)
         self.layout.addWidget(settings_box, 2, 1)
         self.layout.addWidget(compute, 3, 1)
-        self.layout.addWidget(test_generate, 4, 1)
+        self.layout.addWidget(generate, 4, 1)
+        self.layout.addWidget(test_predict, 5, 1)
         self.layout.addWidget(human_or_robot, 2, 0)
 
     def select_conversation_type(self, conv_type):
-        #TODO: choices
         if conv_type == 'Human-Human':
-            self.app.verbose('h')
+            self.conversation_type = 'h'
         elif conv_type == 'Human-Robot':
-            self.app.verbose('r')
+            self.conversation_type = 'r'
+        self.app.verbose(self.conversation_type)
 
     def generate_time_series(self):
-        print('click')
         # gts_th est un thread destiné à créer les séries temporelles.
         gts_th = GenerateTimeSeriesThread("123456",
                                           "/home/chris/OpenFace",
@@ -105,6 +108,22 @@ class SettingsWidget(QWidget):
         gts_th.signals.finished.connect(lambda: self.app.verbose("Time series successfully generated."))
         # On demande à threadpool de lancer le thread.
         self.app.threadpool.start(gts_th)
+
+    def predict(self):
+        # pred_th est un thread destiné à créer les prédictions.
+        pred_th = PredictThread("123456",
+                                self.conversation_type,
+                                "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/PredictionModule",
+                                "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/",
+                                6
+                                )
+        # Les messages reçus par le signal "msg" seront traités par verbose pour les afficher.
+        pred_th.signals.msg.connect(lambda msg: self.app.verbose(*msg))
+        # Une fois le travail fini, on l'écrit dans la barre de statut
+        pred_th.signals.finished.connect(lambda: self.app.verbose("Predictions successfully generated."))
+        # On demande à threadpool de lancer le thread.
+        self.app.threadpool.start(pred_th)
+
 
 
 class VideoPlayer(QWidget):

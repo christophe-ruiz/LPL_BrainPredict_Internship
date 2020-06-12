@@ -88,7 +88,7 @@ class GenerateTimeSeriesThread(QRunnable):
 
 
 class PredictThread(QRunnable):
-    def __init__(self, regions, type, lag, pred_module_path, input_dir):
+    def __init__(self, regions, type, pred_module_path, input_dir, lag):
         super(PredictThread, self).__init__()
         self.regions = regions
         self.type = type
@@ -107,10 +107,10 @@ class PredictThread(QRunnable):
     @pyqtSlot()
     def run(self) -> None:
         p = Predict(self.regions,
-                               self.type,
-                               self.lag,
-                               self.pred_module_path,
-                               self.input_dir)
+                    self.type,
+                    self.pred_module_path,
+                    self.input_dir,
+                    self.lag)
         p.signals.msg.connect(self.repeat_msg)
         p.signals.finished.connect(lambda: self.signals.finished.emit())
         p.start()
