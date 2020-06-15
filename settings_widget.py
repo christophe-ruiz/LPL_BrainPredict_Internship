@@ -1,12 +1,11 @@
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroupBox, QSizePolicy, QVBoxLayout, QStyle,\
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QPushButton, QGroupBox, QSizePolicy, QVBoxLayout, QStyle, \
     QSlider, QGridLayout, QComboBox
 from elements.CollapsibleSettingsBox import CollapsibleSettingsBox
 from elements.InputMediaBox import InputMediaBox
 from tasks.task_thread import GenerateTimeSeriesThread, PredictThread
-import subprocess
 
 
 class SettingsWidget(QWidget):
@@ -28,7 +27,7 @@ class SettingsWidget(QWidget):
         file_box.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
         path_btn = QPushButton('Choose file', self)
-        path_btn.setStatusTip('Choose PredictionModule file')
+        path_btn.setStatusTip('Choose prediction file')
         path_btn.clicked.connect(self.app.get_path)
 
         file_layout = QVBoxLayout()
@@ -66,25 +65,45 @@ class SettingsWidget(QWidget):
         generate.clicked.connect(lambda: self.generate_time_series())
 
         test_predict = QPushButton("TEST PREDICT")
-        test_predict.clicked.connect(lambda: self.predict())
+        test_predict.clicked.connect(lambda: self.compute_predictions())
 
-        region_selector = CollapsibleSettingsBox(self.app.get_data())
+        name_list = self.app.get_data().get_areas()["Name"].tolist()
+        self.region_selector = CollapsibleSettingsBox(name_list, title="Regions of Interest")
 
-        kw = dict(
+        self.input_paths_kw = dict(
+            working_directory="Working directory (dir)",
+            open_face_directory="Open face directory (dir)",
             audio="Audio directory (dir)",
             video="Video file (*.avi)"
         )
-        input_media = InputMediaBox(self.app, **kw)
+        general_keys = ['working_directory', 'open_face_directory']
+        general_kw = {k: v for k, v in self.input_paths_kw.items() if k in general_keys}
+
+        media_keys = ['audio', 'video']
+        media_kw = {k: v for k, v in self.input_paths_kw.items() if k in media_keys}
+
+        input_general = InputMediaBox(self.app, **general_kw)
+        input_media = InputMediaBox(self.app, **media_kw)
 
         self.app.verbose('Adding widget to settings tab...')
-        self.layout.addWidget(region_selector, 0, 0, 3, 1, Qt.AlignCenter)
+        self.layout.addWidget(input_general, 0, 0)
         self.layout.addWidget(input_media, 0, 1)
+        self.layout.addWidget(self.region_selector, 1, 0, 3, 1, Qt.AlignCenter)
+        self.layout.addWidget(human_or_robot, 3, 0)
         self.layout.addWidget(file_box, 1, 1)
         self.layout.addWidget(settings_box, 2, 1)
         self.layout.addWidget(compute, 3, 1)
         self.layout.addWidget(generate, 4, 1)
         self.layout.addWidget(test_predict, 5, 1)
-        self.layout.addWidget(human_or_robot, 2, 0)
+
+    def check_paths(self):
+        for path in self.input_paths_kw:
+            if path not in self.app.paths:
+                self.app.verbose(" /!\ Missing path for ", ' '.join(self.input_paths_kw[path].split(" ")[:-1]))
+                return False
+            elif self.app.paths[path][-1] == '/':
+                self.app.paths[path] = self.app.paths[path][:-1]
+        return True
 
     def select_conversation_type(self, conv_type):
         if conv_type == 'Human-Human':
@@ -94,11 +113,13 @@ class SettingsWidget(QWidget):
         self.app.verbose(self.conversation_type)
 
     def generate_time_series(self):
+        if not self.check_paths():
+            return
         # gts_th est un thread destiné à créer les séries temporelles.
-        gts_th = GenerateTimeSeriesThread("123456",
-                                          "/home/chris/OpenFace",
-                                          "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/PredictionModule",
-                                          "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/",
+        gts_th = GenerateTimeSeriesThread(self.region_selector.choices(),
+                                          self.app.paths["open_face_directory"],
+                                          self.app.paths["working_directory"] + "/PredictionModule",
+                                          self.app.paths["working_directory"],
                                           self.app.paths["video"],
                                           self.app.paths["audio"]
                                           )
@@ -109,12 +130,12 @@ class SettingsWidget(QWidget):
         # On demande à threadpool de lancer le thread.
         self.app.threadpool.start(gts_th)
 
-    def predict(self):
+    def compute_predictions(self):
         # pred_th est un thread destiné à créer les prédictions.
-        pred_th = PredictThread("123456",
+        pred_th = PredictThread(self.region_selector.choices(),
                                 self.conversation_type,
-                                "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/PredictionModule",
-                                "/home/chris/PycharmProjects/LPL_BrainPredict_Internship/",
+                                self.app.paths["working_directory"] + "/PredictionModule",
+                                self.app.paths["working_directory"],
                                 6
                                 )
         # Les messages reçus par le signal "msg" seront traités par verbose pour les afficher.
@@ -123,7 +144,6 @@ class SettingsWidget(QWidget):
         pred_th.signals.finished.connect(lambda: self.app.verbose("Predictions successfully generated."))
         # On demande à threadpool de lancer le thread.
         self.app.threadpool.start(pred_th)
-
 
 
 class VideoPlayer(QWidget):
@@ -172,4 +192,3 @@ class VideoPlayer(QWidget):
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
         else:
             self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
-

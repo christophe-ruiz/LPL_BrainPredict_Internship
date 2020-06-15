@@ -18,13 +18,14 @@ class InputMediaBox(QWidget):
         self.buttons = dict()
         self.buttons_text = dict()
         for filename, filetype in kwargs.items():
-            file_box = QGroupBox(filename.capitalize() + " file")
+            title = ' '.join(filename.split('_'))
+            file_box = QGroupBox(title.capitalize() + " file")
             file_box.setAutoFillBackground(True)
             file_box.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
             file_box.setStyleSheet("background-color: white")
 
             btn = QPushButton('Choose file', self)
-            btn.setStatusTip('Choose the input ' + filename + ' file.')
+            btn.setStatusTip('Choose the input ' + title + ' path.')
             btn.clicked.connect(lambda _, fname=filename, ftype=filetype : self.get_input_file(fname, ftype))
 
             text = QLabel()

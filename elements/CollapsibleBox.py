@@ -1,16 +1,9 @@
-from PyQt5.QtCore import Qt, QPropertyAnimation, QParallelAnimationGroup, QAbstractAnimation, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea, QToolButton, QSizePolicy, QVBoxLayout, QCheckBox
-
-"""
-Widget contenant les regions exploitables sous formes de cases à cocher pour selectionner les regions
-à calculer pour la reprséentation des données sous forme d'animation ou de graphique.
-"""
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget, QFrame, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox
 
 
-class CollapsibleSettingsBox(QWidget):
+class FrameLayout(QWidget):
     def __init__(self, btn_titles, parent=None, title=None):
         QFrame.__init__(self, parent=parent)
         super().__init__(parent)
@@ -92,7 +85,7 @@ class CollapsibleSettingsBox(QWidget):
             self._hlayout.addWidget(self.initTitle(title))
 
         def initArrow(self, collapsed):
-            self._arrow = CollapsibleSettingsBox.Arrow(collapsed=collapsed)
+            self._arrow = FrameLayout.Arrow(collapsed=collapsed)
             self._arrow.setStyleSheet("border:0px")
 
             return self._arrow
@@ -108,7 +101,7 @@ class CollapsibleSettingsBox(QWidget):
         def mousePressEvent(self, event):
             self.clicked.emit()
 
-            return super(CollapsibleSettingsBox.TitleFrame, self).mousePressEvent(event)
+            return super(FrameLayout.TitleFrame, self).mousePressEvent(event)
 
     #############################
     #           ARROW           #

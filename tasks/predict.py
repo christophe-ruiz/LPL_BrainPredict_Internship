@@ -39,7 +39,13 @@ class Predict(QObject):
 
 
     def start(self):
+        if self.pred_module_path[-1] == '/':
+            self.pred_module_path = self.pred_module_path[:-1]
+
         out_dir = "%s/outputs/generated_time_series/" % self.input_dir
+
+        # GET REGIONS NAMES FOR THEIR CODES
+        brain_areas_desc = pd.read_csv("data/brain_areas.tsv", sep='\t', header=0)
 
         # WRIGHT MULTIMODAL TIME SERIES TO CSV FILE
         all_data = pd.read_csv("%s/outputs/generated_time_series/all_features.csv" % self.input_dir, sep=';', header=0)
@@ -48,7 +54,7 @@ class Predict(QObject):
         print("0")
         lagged_names = []
         for col in columns[1:]:
-            lagged_names.extend([col + "_t%d" % p for p in range(self.lag, 2, -1)])
+            lagged_names.extend([col + "_t%d" % (p) for p in range(self.lag, 2, -1)])
 
         all_data = pd.DataFrame(self.reorganize_data(all_data.values[:, 1:], lag=6, step=1), columns=lagged_names)
 
@@ -79,18 +85,18 @@ class Predict(QObject):
                     break
 
             model_name = fname.split('/')[-1].split('_')[0]
-            # print (model_name)
+            print('model_name: ', model_name)
             model = joblib.load(fname)
+            print('model: ', model)
 
             predictors = literal_eval(self.get_predictors_dict(model_name, region, self.type, self.pred_module_path))
-            # print ("Predictors time series: ", predictors, "\n -------------")
+            print("Predictors time series: ", predictors, "\n -------------")
 
             predictors_data = all_data.loc[:, predictors].values
-            print(predictors_data)
-            print(predictors_data.shape)
-            print(model)
+            print('predictors_data: ', predictors_data)
+            print('predictors_data shape: ', predictors_data.shape)
 
-            pred = model.predict(predictors_data)
+            pred = model.predict(predictors_data) # Provoque une erreur
 
             preds[region] = [0 for i in range(self.lag)] + pred.tolist()
 
@@ -119,7 +125,7 @@ class Predict(QObject):
                                                 index_label=["Time (s)"])
         preds_var.to_csv("%s/outputs/predictors.csv" % self.input_dir, sep=';', index=False)
 
-    def reorganize_data (self, data_, lag = 6, step = 1):
+    def reorganize_data(self, data_, lag=6, step=1):
         """
             step: ratio between frequencies of two time index (1.205 s)
             lag: lag
@@ -131,19 +137,20 @@ class Predict(QObject):
         lag0 = 1
         real_lag = lag - 2
 
-        for i in range (lag, len (data_), step):
+        for i in range(lag, len(data_), step):
             row = []
-            for j in range (data_. shape [1]):
-                row = row + list (data_ [i - lag : i -  lag + real_lag, j]. flatten ()) #+ [np. sum (data_ [i - lag : i - lag + 3, j])]
-                #row = row + [np. mean (data_ [i - lag : i -  lag + real_lag, j]), np. std (data_ [i - lag : i -  lag + real_lag, j])]
-            out_data. append (row)
+            for j in range(data_.shape[1]):
+                row = row + list(
+                    data_[i - lag: i - lag + real_lag, j].flatten())  # + [np. sum (data_ [i - lag : i - lag + 3, j])]
+                # row = row + [np. mean (data_ [i - lag : i -  lag + real_lag, j]), np. std (data_ [i - lag : i -  lag + real_lag, j])]
+            out_data.append(row)
 
-        return np. array (out_data)
-    #---------------------------------------------------#
-    def get_features_from_lagged (self, lagged_variables):
-        features = set (['_'. join (a.split ('_')[0:-1]) for a in lagged_variables])
-        return ','. join (map (str, list (features)))
+        return np.array(out_data)
 
+    # ---------------------------------------------------#
+    def get_features_from_lagged(self, lagged_variables):
+        features = set(['_'.join(a.split('_')[0:-1]) for a in lagged_variables])
+        return ','.join(map(str, list(features)))
 
     #---------------------------------------------------#
     def get_predictors (self, model_name, region, type, path):
@@ -161,11 +168,14 @@ class Predict(QObject):
     #---------------------------------------------------#
     def get_predictors_dict (self, model_name, region, type, path):
         """
-        model_name: name the PredictionModule model
+        model_name: name the prediction model
         region: brain area
         type: interaction type (h (human-human) or r (human-robot))
         """
-        model_params = pd. read_csv ("%s/results/models_params/%s_H%s.tsv"%(path, model_name, type. upper ()), sep = '\t', header = 0)
-        predictors = model_params . loc [model_params["region"] == "%s"%region]["selected_predictors"]. iloc [0]
+        ppath = "%s/results/prediction/%s_H%s.tsv" % (path, model_name, type.upper())
+        print('predict path: ', ppath)
+        model_params = pd.read_csv(ppath, sep='\t',
+                                   header=0)
+        predictors = model_params.loc[model_params["region"] == "%s" % region]["selected_predictors"].iloc[0]
 
         return predictors
