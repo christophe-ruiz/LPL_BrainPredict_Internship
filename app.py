@@ -132,11 +132,11 @@ class App(QMainWindow):
         if filetype[-5:] == '(dir)':
             path = QFileDialog.getExistingDirectory(
                 self,
-                "Open " + title,
+                "Open " + title + " path",
                 "/home",
                 QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
             )
-            self.verbose('Selected ' + title + ' apth :', path)
+            self.verbose('Selected ' + title + ' path :', path)
         else:
             path, _ = QFileDialog.getOpenFileName(
                 self,

@@ -1,9 +1,8 @@
-from PyQt5.QtCore import Qt, QPropertyAnimation, QParallelAnimationGroup, QAbstractAnimation, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QFrame, QScrollArea, QToolButton, QSizePolicy, QVBoxLayout, QCheckBox
-
 """
 Widget contenant les regions exploitables sous formes de cases à cocher pour selectionner les regions
 à calculer pour la reprséentation des données sous forme d'animation ou de graphique.
+
+adapté de la version de PyQt4 proposée ici : https://github.com/By0ute/pyqt-collapsible-widget
 """
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import pyqtSignal
@@ -15,13 +14,13 @@ class CollapsibleSettingsBox(QWidget):
         QFrame.__init__(self, parent=parent)
         super().__init__(parent)
 
-        self._is_collasped = True
+        self._is_collapsed = True
         self._title_frame = None
         self._content, self._content_layout = (None, None)
 
         self._main_v_layout = QVBoxLayout(self)
-        self._main_v_layout.addWidget(self.initTitleFrame(title, self._is_collasped))
-        self._main_v_layout.addWidget(self.initContent(self._is_collasped))
+        self._main_v_layout.addWidget(self.initTitleFrame(title, self._is_collapsed))
+        self._main_v_layout.addWidget(self.initContent(self._is_collapsed))
 
         self.initCollapsable()
 
@@ -64,9 +63,9 @@ class CollapsibleSettingsBox(QWidget):
         self._title_frame.clicked.connect(lambda: self.toggleCollapsed())
 
     def toggleCollapsed(self):
-        self._content.setVisible(self._is_collasped)
-        self._is_collasped = not self._is_collasped
-        self._title_frame._arrow.setArrow(int(self._is_collasped))
+        self._content.setVisible(self._is_collapsed)
+        self._is_collapsed = not self._is_collapsed
+        self._title_frame.arrow().setArrow(int(self._is_collapsed))
 
     ############################
     #           TITLE          #
@@ -90,6 +89,9 @@ class CollapsibleSettingsBox(QWidget):
 
             self._hlayout.addWidget(self.initArrow(collapsed))
             self._hlayout.addWidget(self.initTitle(title))
+
+        def arrow(self):
+            return self._arrow
 
         def initArrow(self, collapsed):
             self._arrow = CollapsibleSettingsBox.Arrow(collapsed=collapsed)
@@ -132,8 +134,10 @@ class CollapsibleSettingsBox(QWidget):
                 self._arrow = self._arrow_vertical
             else:
                 self._arrow = self._arrow_horizontal
+            # self.paintEvent()
 
         def paintEvent(self, event):
+            print(self._arrow)
             painter = QtGui.QPainter()
             painter.begin(self)
             painter.setBrush(QtGui.QColor(192, 192, 192))
