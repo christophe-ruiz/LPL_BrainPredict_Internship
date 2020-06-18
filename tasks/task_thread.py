@@ -5,7 +5,7 @@ from tasks.generate_ts import GenerateTimeSeries
 from tasks.predict import Predict
 from tasks.signals import Signals
 
-# TODO: Refactoriser pour n'avoir qu'une classe.
+# TODO: Refactoriser pour n'avoir qu'une classe ?
 """
 Permet la construction de la modélisation dans un thread
 """

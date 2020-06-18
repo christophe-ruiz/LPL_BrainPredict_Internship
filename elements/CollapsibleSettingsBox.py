@@ -134,7 +134,6 @@ class CollapsibleSettingsBox(QWidget):
                 self._arrow = self._arrow_vertical
             else:
                 self._arrow = self._arrow_horizontal
-            # self.paintEvent()
 
         def paintEvent(self, event):
             print(self._arrow)

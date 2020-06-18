@@ -8,25 +8,31 @@ from settings_widget import SettingsWidget, VideoPlayer
 import os
 import subprocess
 
-
+"""
+Application PyQt5 contenant les éléments de l'interface.
+"""
 class App(QMainWindow):
     """
     Initialisation de la fenêtre principale contenant le tabwidget.
     """
     def __init__(self):
         super().__init__()
+        # Contient les chemins utiles au fonctionnement des fonctionnalités (peut-être redondant avec data)
+        # OpenFace, Working directory, audio input, video input
         self.paths = dict()
+        # Contient les choix des contenu à générer, ils sont préselectionnés.
         self.action = {
             'graph': True,
             'modeling': True
         }
+        # Contient des chemins pour les fonctionnalités
         self.data = Data(predictions='./data/predictions.csv',
                          areas='./data/brain_areas.tsv',
                          left='./parcellation/lh.BN_Atlas.annot',
                          right='./parcellation/rh.BN_Atlas.annot')
         # threadpool sera le gestionnaire des threads executant les tâches de modelisation et de création du graphique.
         self.threadpool = QThreadPool()
-        self.threadpool.setMaxThreadCount(2)
+        self.threadpool.setMaxThreadCount(3)
         self.__set_infos()
 
         # widget à onglets
@@ -117,8 +123,9 @@ class App(QMainWindow):
     """
     Permet de récupérer le chemin du fichier de prédictions.
     """
-    #TODO: A fusionner avec get_input_file()
+    #TODO: A fusionner avec get_input_path()
     def get_path(self):
+        # On recupère le chemin du fichier à l'aide d'une fenêtre montrant les fichiers csv présents sur le système.
         predictions_path, _ = QFileDialog.getOpenFileName(self, 'Open Prediction file', filter="CSV files (*.csv)")
         self.verbose('Selected file :', predictions_path)
         if predictions_path != "":
@@ -128,8 +135,11 @@ class App(QMainWindow):
     Permet de récupérer les chemins des fichiers d'entrée.
     """
     def get_input_path(self, filename, filetype):
+        # Titre du chemin
         title = ' '.join(filename.split('_'))
+        # Si on cherche un répertoire
         if filetype[-5:] == '(dir)':
+            # On recupère le chemin du fichier à l'aide d'une fenêtre montrant les répertoires présents sur le système.
             path = QFileDialog.getExistingDirectory(
                 self,
                 "Open " + title + " path",
@@ -138,12 +148,15 @@ class App(QMainWindow):
             )
             self.verbose('Selected ' + title + ' path :', path)
         else:
+            # On recupère le chemin du fichier à l'aide d'une fenêtre montrant les fichiers du bon type présents sur
+            # le système.
             path, _ = QFileDialog.getOpenFileName(
                 self,
                 "Open " + filename + " file",
                 filter=filetype
             )
             self.verbose('Selected ' + title + ' path :', path)
+        # Si l'utilisateur n'a pas annulé on note le chemin sinon on le retire s'il existait un chemin pour ce fichier.
         if path != "":
             self.paths[filename] = path
             return path
